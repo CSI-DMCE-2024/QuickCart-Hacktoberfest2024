@@ -48,6 +48,13 @@ def calculate_total():
     total = sum(shopping_list.values())
     messagebox.showinfo("Total Items", "Total number of items in the shopping list: " + str(total)) 
 
+# Function to clear the shopping list
+def clear_list():
+    global shopping_list
+    shopping_list = {}
+    display_list()
+    messagebox.showinfo("Success", "Your shopping list has been cleared.")
+
 # Main function
 def main():
     global entry_item, entry_amount, listbox
@@ -87,8 +94,11 @@ def main():
     button_calculate = tk.Button(frame, text="Calculate Total", command=calculate_total)
     button_calculate.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
+    button_clear = tk.Button(frame, text="Clear List", command=clear_list)
+    button_clear.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
     listbox = tk.Listbox(frame)
-    listbox.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+    listbox.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
     root.mainloop()
 
