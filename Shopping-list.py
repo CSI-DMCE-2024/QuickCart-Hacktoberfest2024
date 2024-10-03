@@ -17,17 +17,23 @@ def display_list():
 def add_item():
     global entry_item, entry_amount
     item = entry_item.get()
-    amount = entry_amount.get()
+    amount = entry_amount.get().strip()
     if item and amount:
-        amount = int(amount)
-        if item in shopping_list:
-            shopping_list[item] += amount
-        else:
-            shopping_list[item] = amount
-        entry_item.delete(0, tk.END)
-        entry_amount.delete(0, tk.END)
-        display_list()
-        messagebox.showinfo("Success", str(amount) + " " + item + "(s) have been added to your shopping list.")
+        try:
+            amount = int(amount)
+            if amount <= 0:
+                raise ValueError("Amount must be a positive integer.")
+
+            if item in shopping_list:
+                shopping_list[item] += amount
+            else:
+                shopping_list[item] = amount
+            entry_item.delete(0, tk.END)
+            entry_amount.delete(0, tk.END)
+            display_list()
+            messagebox.showinfo("Success", str(amount) + " " + item + "(s) have been added to your shopping list.")
+        except ValueError as e:
+            messagebox.showerror("Error", f"Invalid amount: {str(e)}")
     else:
         messagebox.showerror("Error", "Please enter both item and amount.")
 
