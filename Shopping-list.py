@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 
 # Global variables
 shopping_list = {}  # Initialize an empty shopping list
@@ -46,7 +46,51 @@ def remove_item():
 # Function to calculate the total amount of all items
 def calculate_total():
     total = sum(shopping_list.values())
-    messagebox.showinfo("Total Items", "Total number of items in the shopping list: " + str(total)) 
+    messagebox.showinfo("Total Items", "Total number of items in the shopping list: " + str(total))
+
+# New Feature: Edit the quantity of an existing item
+def edit_item():
+    global entry_item, entry_amount
+    item = entry_item.get()
+    amount = entry_amount.get()
+    if item in shopping_list:
+        if amount.isdigit():
+            shopping_list[item] = int(amount)
+            display_list()
+            messagebox.showinfo("Success", f"{item}'s amount has been updated to {amount}.")
+        else:
+            messagebox.showerror("Error", "Please enter a valid amount.")
+    else:
+        messagebox.showerror("Error", item + " is not in your shopping list.")
+
+# New Feature: Save the shopping list to a text file
+def save_list():
+    file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")])
+    if file_path:
+        with open(file_path, 'w') as file:
+            for item, amount in shopping_list.items():
+                file.write(f"{item}: {amount}\n")
+        messagebox.showinfo("Success", "Shopping list has been saved.")
+
+# New Feature: Load the shopping list from a text file
+def load_list():
+    global shopping_list
+    file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
+    if file_path:
+        with open(file_path, 'r') as file:
+            shopping_list.clear()
+            for line in file:
+                item, amount = line.strip().split(": ")
+                shopping_list[item] = int(amount)
+        display_list()
+        messagebox.showinfo("Success", "Shopping list has been loaded.")
+
+# New Feature: Clear the shopping list
+def clear_list():
+    global shopping_list
+    shopping_list.clear()
+    display_list()
+    messagebox.showinfo("Success", "Shopping list has been cleared.")
 
 # Main function
 def main():
@@ -81,14 +125,26 @@ def main():
     button_remove = tk.Button(frame, text="Remove Item", command=remove_item)
     button_remove.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
+    button_edit = tk.Button(frame, text="Edit Item", command=edit_item)
+    button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
     button_display = tk.Button(frame, text="Display List", command=display_list)
-    button_display.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_display.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     button_calculate = tk.Button(frame, text="Calculate Total", command=calculate_total)
-    button_calculate.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_calculate.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    button_clear = tk.Button(frame, text="Clear List", command=clear_list)
+    button_clear.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    button_save = tk.Button(frame, text="Save List", command=save_list)
+    button_save.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    button_load = tk.Button(frame, text="Load List", command=load_list)
+    button_load.grid(row=9, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     listbox = tk.Listbox(frame)
-    listbox.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+    listbox.grid(row=10, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
     root.mainloop()
 
