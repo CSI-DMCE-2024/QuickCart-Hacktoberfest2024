@@ -1,22 +1,35 @@
-# Shopping List Application (Tkinter)
+# 🛒 Shopping List App
 
-A simple **Shopping List** application built with Python's Tkinter library. This app allows users to manage a shopping list by adding or removing items and calculating the total number of items.
-
-## Maintainers
-[Mehnaz Ali](https://github.com/Mehnaz2004)
+## Overview
+A Python Tkinter app to manage your shopping list easily. Add, edit, remove items, and calculate total costs in a user-friendly interface.
 
 ## Features
-- **Add Items:** Input items and quantities to add to the list.
-- **Remove Items:** Delete items from the list.
-- **Display List:** View all items and their quantities.
-- **Calculate Total:** Show the total number of items.
-
-## Technologies
-- **Python**
-- **Tkinter:** For the GUI.
+- ➕ **Add Items**: Add items with quantities and prices.
+- ✏️ **Edit Items**: Update item quantities easily.
+- ❌ **Remove Items**: Remove items when not needed.
+- 📜 **Display List**: View items, quantities, and prices.
+- 💰 **Calculate Total Cost**: Get the total cost of all items.
 
 ## How to Run
-1. Ensure Python is installed.
-2. Run the script:
+1. **Clone the Repo**:
+   ```bash
+   git clone https://github.com/CSI-DMCE-2024/QuickCart-Hacktoberfest2024
+   cd QuickCart-Hacktoberfest2024
+   ```
+
+2. **Run the App**:
    ```bash
    python shopping_list.py
+   ```
+
+## Contribution
+- Fork, create a branch, make changes, and open a pull request.
+
+## Maintainer
+- **Mehnaz Ali**
+
+## License
+- MIT License
+
+Happy Shopping! 🛍️
+
