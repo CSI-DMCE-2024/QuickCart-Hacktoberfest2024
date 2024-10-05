@@ -5,6 +5,7 @@ from tkinter import messagebox
 shopping_list = {}  # Initialize an empty shopping list
 entry_item = None
 entry_amount = None
+entry_search = None
 listbox = None
 
 # Function to display the shopping list
@@ -48,9 +49,30 @@ def calculate_total():
     total = sum(shopping_list.values())
     messagebox.showinfo("Total Items", "Total number of items in the shopping list: " + str(total)) 
 
+def search_item():
+    global entry_search
+    search = entry_search.get()
+    found_search = False
+    
+    for item in list(shopping_list.keys()):
+        print(item)
+        if item == search:
+            print("found")
+            found_search = True
+        else: 
+            del shopping_list[item]   
+
+    if found_search:
+        display_list()
+        messagebox.showinfo("Success", " filtered list by " + search + "other entries removed.")
+    else:
+        print("not found")
+        display_list()
+        messagebox.showerror("Error", item + " not in your shopping list. All entries removed")
+
 # Main function
 def main():
-    global entry_item, entry_amount, listbox
+    global entry_item, entry_amount, entry_search, listbox
     root = tk.Tk()
     root.title("Shopping List")
 
@@ -68,27 +90,36 @@ def main():
 
     entry_item = tk.Entry(frame)
     entry_item.grid(row=0, column=1, padx=5, pady=5)
-
+    
     label_amount = tk.Label(frame, text="Amount:")
     label_amount.grid(row=1, column=0, padx=5, pady=5, sticky="e")
 
     entry_amount = tk.Entry(frame)
     entry_amount.grid(row=1, column=1, padx=5, pady=5)
 
+    label_search = tk.Label(frame, text="Search:")
+    label_search.grid(row=2, column=0, padx=5, pady=5, sticky="e")
+
+    entry_search = tk.Entry(frame)
+    entry_search.grid(row=2, column=1, padx=5, pady=5)
+
     button_add = tk.Button(frame, text="Add Item", command=add_item)
-    button_add.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_add.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     button_remove = tk.Button(frame, text="Remove Item", command=remove_item)
-    button_remove.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_remove.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     button_display = tk.Button(frame, text="Display List", command=display_list)
-    button_display.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_display.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    button_search = tk.Button(frame, text="Display Search", command=search_item)
+    button_search.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     button_calculate = tk.Button(frame, text="Calculate Total", command=calculate_total)
-    button_calculate.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_calculate.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     listbox = tk.Listbox(frame)
-    listbox.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+    listbox.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
     root.mainloop()
 
