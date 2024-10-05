@@ -52,6 +52,28 @@ def remove_item():
     else:
         messagebox.showerror("Error", f"{item} is not in your shopping list.")
 
+# Function to edit the amount of an item in the shopping list
+def edit_item():
+    global entry_item, entry_amount
+    item = entry_item.get()
+    new_amount = entry_amount.get()
+    
+    if item and new_amount:
+        try:
+            new_amount = int(new_amount)
+            if item in shopping_list:
+                shopping_list[item][0] = new_amount  # Update the item's amount
+                entry_item.delete(0, tk.END)
+                entry_amount.delete(0, tk.END)
+                display_list()
+                messagebox.showinfo("Success", f"The amount of {item} has been updated to {new_amount}.")
+            else:
+                messagebox.showerror("Error", f"{item} is not in your shopping list.")
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number for the amount.")
+    else:
+        messagebox.showerror("Error", "Please enter both item and new amount.")
+
 # Function to calculate the total cost of all items
 def calculate_total():
     total = sum(amount * price for amount, price in shopping_list.values())
@@ -93,17 +115,20 @@ def main():
     button_add = tk.Button(frame, text="Add Item", command=add_item)
     button_add.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
+    button_edit = tk.Button(frame, text="Edit Item", command=edit_item)
+    button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")  # New Edit button
+
     button_remove = tk.Button(frame, text="Remove Item", command=remove_item)
-    button_remove.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_remove.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     button_display = tk.Button(frame, text="Display List", command=display_list)
-    button_display.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_display.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     button_calculate = tk.Button(frame, text="Calculate Total Cost", command=calculate_total)
-    button_calculate.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_calculate.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     listbox = tk.Listbox(frame)
-    listbox.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+    listbox.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
     root.mainloop()
 
