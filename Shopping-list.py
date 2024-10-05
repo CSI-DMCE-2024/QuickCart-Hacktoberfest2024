@@ -19,15 +19,20 @@ def add_item():
     item = entry_item.get()
     amount = entry_amount.get()
     if item and amount:
-        amount = int(amount)
-        if item in shopping_list:
-            shopping_list[item] += amount
-        else:
-            shopping_list[item] = amount
-        entry_item.delete(0, tk.END)
-        entry_amount.delete(0, tk.END)
-        display_list()
-        messagebox.showinfo("Success", str(amount) + " " + item + "(s) have been added to your shopping list.")
+        try:
+            amount = int(amount)
+            if amount <= 0:
+                raise ValueError("Amount must be a positive integer.")
+            if item in shopping_list:
+                shopping_list[item] += amount
+            else:
+                shopping_list[item] = amount
+            entry_item.delete(0, tk.END)
+            entry_amount.delete(0, tk.END)
+            display_list()
+            messagebox.showinfo("Success", f"{amount} {item}(s) have been added to your shopping list.")
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
     else:
         messagebox.showerror("Error", "Please enter both item and amount.")
 
@@ -39,14 +44,21 @@ def remove_item():
         del shopping_list[item]
         entry_item.delete(0, tk.END)
         display_list()
-        messagebox.showinfo("Success", item + " has been removed from your shopping list.")
+        messagebox.showinfo("Success", f"{item} has been removed from your shopping list.")
     else:
-        messagebox.showerror("Error", item + " is not in your shopping list.")
+        messagebox.showerror("Error", f"{item} is not in your shopping list.")
+
+# Function to clear the entire shopping list
+def clear_list():
+    global shopping_list
+    shopping_list.clear()
+    display_list()
+    messagebox.showinfo("Success", "All items have been cleared from your shopping list.")
 
 # Function to calculate the total amount of all items
 def calculate_total():
     total = sum(shopping_list.values())
-    messagebox.showinfo("Total Items", "Total number of items in the shopping list: " + str(total)) 
+    messagebox.showinfo("Total Items", f"Total number of items in the shopping list: {total}")
 
 # Main function
 def main():
@@ -87,11 +99,16 @@ def main():
     button_calculate = tk.Button(frame, text="Calculate Total", command=calculate_total)
     button_calculate.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
+    button_clear = tk.Button(frame, text="Clear List", command=clear_list)
+    button_clear.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
     listbox = tk.Listbox(frame)
-    listbox.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+    listbox.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
     root.mainloop()
 
 # Run the main function
 if __name__ == "__main__":
     main()
+
+
