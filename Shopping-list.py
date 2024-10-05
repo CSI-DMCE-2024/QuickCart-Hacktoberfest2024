@@ -74,6 +74,13 @@ def edit_item():
     else:
         messagebox.showerror("Error", "Please enter both item and new amount.")
 
+# Function to clear the entire shopping list
+def clear_list():
+    global shopping_list
+    shopping_list.clear()
+    display_list()
+    messagebox.showinfo("Success", "All items have been cleared from your shopping list.")        
+
 # Function to calculate the total cost of all items
 def calculate_total():
     total = sum(amount * price for amount, price in shopping_list.values())
@@ -127,8 +134,11 @@ def main():
     button_calculate = tk.Button(frame, text="Calculate Total Cost", command=calculate_total)
     button_calculate.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
+    button_clear = tk.Button(frame, text="Clear List", command=clear_list)
+    button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
     listbox = tk.Listbox(frame)
-    listbox.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+    listbox.grid(row=9, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
     root.mainloop()
 
