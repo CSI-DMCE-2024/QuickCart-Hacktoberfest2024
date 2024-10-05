@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
+import json
+import os
 
 # Global variables
 shopping_list = {}  # Initialize an empty shopping list
@@ -7,6 +9,7 @@ entry_item = None
 entry_amount = None
 entry_price = None
 listbox = None
+FILE_PATH = "shopping_list.json"
 
 # Function to display the shopping list
 def display_list():
@@ -21,7 +24,7 @@ def add_item():
     item = entry_item.get()
     amount = entry_amount.get()
     price = entry_price.get()
-    
+
     if item and amount and price:
         try:
             amount = int(amount)
@@ -57,7 +60,7 @@ def edit_item():
     global entry_item, entry_amount
     item = entry_item.get()
     new_amount = entry_amount.get()
-    
+
     if item and new_amount:
         try:
             new_amount = int(new_amount)
@@ -78,6 +81,19 @@ def edit_item():
 def calculate_total():
     total = sum(amount * price for amount, price in shopping_list.values())
     messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: ${total:.2f}")
+
+# Function to save the shopping list to a file
+def save_list_to_file():
+    with open(FILE_PATH, 'w') as file:
+        json.dump(shopping_list, file)
+
+# Function to load the shopping list from a file
+def load_list_from_file():
+    global shopping_list
+    if os.path.exists(FILE_PATH):
+        with open(FILE_PATH, 'r') as file:
+            shopping_list = json.load(file)
+        display_list()
 
 # Main function
 def main():
@@ -116,7 +132,7 @@ def main():
     button_add.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     button_edit = tk.Button(frame, text="Edit Item", command=edit_item)
-    button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")  # New Edit button
+    button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     button_remove = tk.Button(frame, text="Remove Item", command=remove_item)
     button_remove.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
@@ -129,6 +145,12 @@ def main():
 
     listbox = tk.Listbox(frame)
     listbox.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+    # Load the shopping list from the file
+    load_list_from_file()
+
+    # Save the shopping list to the file when the window is closed
+    root.protocol("WM_DELETE_WINDOW", lambda: [save_list_to_file(), root.destroy()])
 
     root.mainloop()
 
