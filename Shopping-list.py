@@ -55,15 +55,18 @@ def search_item():
     found_search = False
     
     for item in list(shopping_list.keys()):
+        print(item)
         if item == search:
-            found_item = True
+            print("found")
+            found_search = True
         else: 
             del shopping_list[item]   
 
     if found_search:
         display_list()
-        messagebox.showinfo("Success", " filtered list by " + item)
+        messagebox.showinfo("Success", " filtered list by " + search + "other entries removed.")
     else:
+        print("not found")
         display_list()
         messagebox.showerror("Error", item + " not in your shopping list. All entries removed")
 
