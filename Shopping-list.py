@@ -64,7 +64,7 @@ def remove_item():
 
 
 # calculate the total cost of all items
-=======
+
 # Function to edit the amount of an item in the shopping list
 def edit_item():
     global entry_item, entry_amount
