@@ -15,7 +15,8 @@ def display_list():
     for item, details in shopping_list.items():
         amount, price = details
         listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price})")
-
+    
+    #enable or disable buttons 
     if shopping_list:
         button_remove.congig(state=tk.NORMAL)
         button_calculate.config(state=tk.NORMAL)
@@ -61,6 +62,7 @@ def remove_item():
         messagebox.showinfo("Success", f"{item} has been removed from your shopping list.")
     else:
         messagebox.showerror("Error", f"{item} is not in your shopping list.")
+    display_list()
 
 # calculate the total cost of all items
 def calculate_total():
@@ -114,6 +116,8 @@ def main():
     listbox = tk.Listbox(frame)
     listbox.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
+    display_list()
+    
     root.mainloop()
 
 # Run the main function
