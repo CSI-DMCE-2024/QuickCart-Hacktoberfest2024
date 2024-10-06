@@ -1,21 +1,31 @@
 import tkinter as tk
 from tkinter import messagebox
 
-# Global variables
-shopping_list = {}  # Initialize an empty shopping list
+shopping_list = {} 
 entry_item = None
 entry_amount = None
 entry_price = None
 listbox = None
+button_remove = None
+button_calculate =None
 
-# Function to display the shopping list
+
 def display_list():
     listbox.delete(0, tk.END)
     for item, details in shopping_list.items():
         amount, price = details
         listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price})")
 
-# Function to add an item to the shopping list
+    if shopping_list:
+        button_remove.congig(state=tk.NORMAL)
+        button_calculate.config(state=tk.NORMAL)
+    else:
+        button_remove.config(state=tk.DISABLED)
+        button_calculate.config(state= tk.DISABLED)
+
+
+
+#  add item to the shopping list
 def add_item():
     global entry_item, entry_amount, entry_price
     item = entry_item.get()
@@ -34,13 +44,13 @@ def add_item():
             entry_amount.delete(0, tk.END)
             entry_price.delete(0, tk.END)
             display_list()
-            messagebox.showinfo("Success", f"{amount} {item}(s) at ${price} each have been added to your shopping list.")
+            messagebox.showinfo("Success", f"{amount} {item}(s) at ${price} each have added to your shopping list.")
         except ValueError:
-            messagebox.showerror("Error", "Please enter valid numbers for amount and price.")
+            messagebox.showerror("Error", "enter valid numbers for amount and price.")
     else:
         messagebox.showerror("Error", "Please enter item, amount, and price.")
 
-# Function to remove an item from the shopping list
+# remove item from the shopping list
 def remove_item():
     global entry_item
     item = entry_item.get()
@@ -52,12 +62,11 @@ def remove_item():
     else:
         messagebox.showerror("Error", f"{item} is not in your shopping list.")
 
-# Function to calculate the total cost of all items
+# calculate the total cost of all items
 def calculate_total():
     total = sum(amount * price for amount, price in shopping_list.values())
     messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: ${total:.2f}")
 
-# Main function
 def main():
     global entry_item, entry_amount, entry_price, listbox
     root = tk.Tk()
