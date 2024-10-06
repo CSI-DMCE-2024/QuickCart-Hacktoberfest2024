@@ -6,14 +6,16 @@ shopping_list = {}  # Initialize an empty shopping list
 entry_item = None
 entry_amount = None
 entry_price = None
+entry_search = None
 listbox = None
 
-# Function to display the shopping list
-def display_list():
+# Function to display the shopping list (filtered or full)
+def display_list(filter_text=""):
     listbox.delete(0, tk.END)
     for item, details in shopping_list.items():
         amount, price = details
-        listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price})")
+        if filter_text.lower() in item.lower():
+            listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price})")
 
 # Function to add an item to the shopping list
 def add_item():
@@ -86,9 +88,14 @@ def calculate_total():
     total = sum(amount * price for amount, price in shopping_list.values())
     messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: ${total:.2f}")
 
+# Function to search for items based on user input
+def search_item():
+    search_text = entry_search.get()  # Get the search query
+    display_list(search_text)  # Update the displayed list with the search filter
+
 # Main function
 def main():
-    global entry_item, entry_amount, entry_price, listbox
+    global entry_item, entry_amount, entry_price, listbox, entry_search
     root = tk.Tk()
     root.title("Shopping List")
     root.configure(bg="pink")
@@ -140,9 +147,19 @@ def main():
     button_clear = tk.Button(frame, text="Clear List", command=clear_list, font=("Arial", 12), bg="#ffff99", fg="black")
     button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-     #Listbox with ScrollBar
+    # Search Bar
+    label_search = tk.Label(frame, text="Search:", bg="#f0f0f0", font=("Arial", 12))
+    label_search.grid(row=9, column=0, padx=5, pady=5, sticky="e")
+
+    entry_search = tk.Entry(frame, font=("Arial", 12))
+    entry_search.grid(row=9, column=1, padx=5, pady=5)
+
+    button_search = tk.Button(frame, text="Search", font=("Arial", 12), bg="#b3ffb3", fg="black", command=search_item)
+    button_search.grid(row=10, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    # Listbox with ScrollBar
     listbox_frame = tk.Frame(frame)
-    listbox_frame.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+    listbox_frame.grid(row=11, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
     listbox = tk.Listbox(listbox_frame, font=("Arial", 12), height=8)
     listbox.pack(side="left", fill="both", expand=True)
