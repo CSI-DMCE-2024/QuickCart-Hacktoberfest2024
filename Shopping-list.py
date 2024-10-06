@@ -91,54 +91,67 @@ def main():
     global entry_item, entry_amount, entry_price, listbox
     root = tk.Tk()
     root.title("Shopping List")
+    root.configure(bg="pink")
 
-    frame_logo = tk.Frame(root)
-    frame_logo.pack(padx=10, pady=10)
+    frame_logo = tk.Frame(root, bg="#e6ffe6")
+    frame_logo.pack(padx=10, pady=10, fill='x')
 
-    label_logo = tk.Label(frame_logo, text="SHOPPING LIST", font=("Helvetica", 24, "bold"))
+    label_logo = tk.Label(frame_logo, text="SHOPPING LIST", font=("Helvetica", 24, "bold"), bg="#e6ffe6", fg="#006600")
     label_logo.pack()
 
-    frame = tk.Frame(root)
-    frame.pack(padx=10, pady=10)
+    #Main Input Frame
+    frame = tk.Frame(root, bg="#007FFF")
+    frame.pack(padx=10, pady=10, fill='both', expand=True)
 
-    label_item = tk.Label(frame, text="Item:")
+    label_item = tk.Label(frame, text="Item:", bg="#f0f0f0", font=("Arial", 12))
     label_item.grid(row=0, column=0, padx=5, pady=5, sticky="e")
 
-    entry_item = tk.Entry(frame)
+    entry_item = tk.Entry(frame, font=("Arial", 12))
     entry_item.grid(row=0, column=1, padx=5, pady=5)
 
-    label_amount = tk.Label(frame, text="Amount:")
+    label_amount = tk.Label(frame, text="Amount:", bg="#f0f0f0", font=("Arial", 12))
     label_amount.grid(row=1, column=0, padx=5, pady=5, sticky="e")
 
-    entry_amount = tk.Entry(frame)
+    entry_amount = tk.Entry(frame, font=("Arial", 12))
     entry_amount.grid(row=1, column=1, padx=5, pady=5)
 
-    label_price = tk.Label(frame, text="Price ($):")
+    label_price = tk.Label(frame, text="Price ($):", bg="#f0f0f0", font=("Arial", 12))
     label_price.grid(row=2, column=0, padx=5, pady=5, sticky="e")
 
-    entry_price = tk.Entry(frame)
+    entry_price = tk.Entry(frame, font=("Arial", 12))
     entry_price.grid(row=2, column=1, padx=5, pady=5)
 
-    button_add = tk.Button(frame, text="Add Item", command=add_item)
+    #Buttons with styles
+    button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#b3ffb3", fg="black", command=add_item)
     button_add.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_edit = tk.Button(frame, text="Edit Item", command=edit_item)
+    button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#ffcc99", fg="black", command=edit_item)
     button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")  # New Edit button
 
-    button_remove = tk.Button(frame, text="Remove Item", command=remove_item)
+    button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#ff9999", fg="black", command=remove_item)
     button_remove.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_display = tk.Button(frame, text="Display List", command=display_list)
+    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#cceeff", fg="black", command=display_list)
     button_display.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_calculate = tk.Button(frame, text="Calculate Total Cost", command=calculate_total)
+    button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#ffff99", fg="black", command=calculate_total)
     button_calculate.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_clear = tk.Button(frame, text="Clear List", command=clear_list)
+    button_clear = tk.Button(frame, text="Clear List", command=clear_list, font=("Arial", 12), bg="#ffff99", fg="black")
     button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    listbox = tk.Listbox(frame)
-    listbox.grid(row=9, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+     #Listbox with ScrollBar
+    listbox_frame = tk.Frame(frame)
+    listbox_frame.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+    listbox = tk.Listbox(listbox_frame, font=("Arial", 12), height=8)
+    listbox.pack(side="left", fill="both", expand=True)
+
+    scrollbar = tk.Scrollbar(listbox_frame)
+    scrollbar.pack(side="right", fill="y")
+
+    listbox.config(yscrollcommand=scrollbar.set)
+    scrollbar.config(command=listbox.yview)
 
     root.mainloop()
 
