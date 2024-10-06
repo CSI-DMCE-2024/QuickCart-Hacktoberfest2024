@@ -1,34 +1,21 @@
 import tkinter as tk
 from tkinter import messagebox
-import json
-import os
 
 # Global variables
-shopping_list = {}
+shopping_list = {}  # Initialize an empty shopping list
 entry_item = None
 entry_amount = None
 entry_price = None
+entry_search = None
 listbox = None
-filename = "shopping_list.json"
 
-# Function to load shopping list from a JSON file
-def load_list():
-    global shopping_list
-    if os.path.exists(filename):
-        with open(filename, 'r') as f:
-            shopping_list = json.load(f)
-
-# Function to save shopping list to a JSON file
-def save_list():
-    with open(filename, 'w') as f:
-        json.dump(shopping_list, f)
-
-# Function to display the shopping list
-def display_list():
+# Function to display the shopping list (filtered or full)
+def display_list(filter_text=""):
     listbox.delete(0, tk.END)
     for item, details in shopping_list.items():
         amount, price = details
-        listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price})")
+        if filter_text.lower() in item.lower():
+            listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price})")
 
 # Function to add an item to the shopping list
 def add_item():
@@ -41,8 +28,6 @@ def add_item():
         try:
             amount = int(amount)
             price = float(price)
-            if amount < 0 or price < 0:
-                raise ValueError("Negative values are not allowed.")
             if item in shopping_list:
                 shopping_list[item][0] += amount  # Update amount
             else:
@@ -51,10 +36,9 @@ def add_item():
             entry_amount.delete(0, tk.END)
             entry_price.delete(0, tk.END)
             display_list()
-            save_list()  # Save the list after adding
             messagebox.showinfo("Success", f"{amount} {item}(s) at ${price} each have been added to your shopping list.")
-        except ValueError as e:
-            messagebox.showerror("Error", str(e))
+        except ValueError:
+            messagebox.showerror("Error", "Please enter valid numbers for amount and price.")
     else:
         messagebox.showerror("Error", "Please enter item, amount, and price.")
 
@@ -66,7 +50,6 @@ def remove_item():
         del shopping_list[item]
         entry_item.delete(0, tk.END)
         display_list()
-        save_list()  # Save the list after removal
         messagebox.showinfo("Success", f"{item} has been removed from your shopping list.")
     else:
         messagebox.showerror("Error", f"{item} is not in your shopping list.")
@@ -80,19 +63,16 @@ def edit_item():
     if item and new_amount:
         try:
             new_amount = int(new_amount)
-            if new_amount < 0:
-                raise ValueError("Negative values are not allowed.")
             if item in shopping_list:
                 shopping_list[item][0] = new_amount  # Update the item's amount
                 entry_item.delete(0, tk.END)
                 entry_amount.delete(0, tk.END)
                 display_list()
-                save_list()  # Save the list after editing
                 messagebox.showinfo("Success", f"The amount of {item} has been updated to {new_amount}.")
             else:
                 messagebox.showerror("Error", f"{item} is not in your shopping list.")
-        except ValueError as e:
-            messagebox.showerror("Error", str(e))
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number for the amount.")
     else:
         messagebox.showerror("Error", "Please enter both item and new amount.")
 
@@ -101,18 +81,21 @@ def clear_list():
     global shopping_list
     shopping_list.clear()
     display_list()
-    save_list()  # Save the cleared list
-    messagebox.showinfo("Success", "All items have been cleared from your shopping list.")
+    messagebox.showinfo("Success", "All items have been cleared from your shopping list.")        
 
 # Function to calculate the total cost of all items
 def calculate_total():
     total = sum(amount * price for amount, price in shopping_list.values())
     messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: ${total:.2f}")
 
+# Function to search for items based on user input
+def search_item():
+    search_text = entry_search.get()  # Get the search query
+    display_list(search_text)  # Update the displayed list with the search filter
+
 # Main function
 def main():
-    global entry_item, entry_amount, entry_price, listbox
-    load_list()  # Load the shopping list at startup
+    global entry_item, entry_amount, entry_price, listbox, entry_search
     root = tk.Tk()
     root.title("Shopping List")
     root.configure(bg="pink")
@@ -123,7 +106,7 @@ def main():
     label_logo = tk.Label(frame_logo, text="SHOPPING LIST", font=("Helvetica", 24, "bold"), bg="#e6ffe6", fg="#006600")
     label_logo.pack()
 
-    # Main Input Frame
+    #Main Input Frame
     frame = tk.Frame(root, bg="#007FFF")
     frame.pack(padx=10, pady=10, fill='both', expand=True)
 
@@ -145,12 +128,12 @@ def main():
     entry_price = tk.Entry(frame, font=("Arial", 12))
     entry_price.grid(row=2, column=1, padx=5, pady=5)
 
-    # Buttons with styles
+    #Buttons with styles
     button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#b3ffb3", fg="black", command=add_item)
     button_add.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#ffcc99", fg="black", command=edit_item)
-    button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")  # New Edit button
 
     button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#ff9999", fg="black", command=remove_item)
     button_remove.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
@@ -164,9 +147,19 @@ def main():
     button_clear = tk.Button(frame, text="Clear List", command=clear_list, font=("Arial", 12), bg="#ffff99", fg="black")
     button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
+    # Search Bar
+    label_search = tk.Label(frame, text="Search:", bg="#f0f0f0", font=("Arial", 12))
+    label_search.grid(row=9, column=0, padx=5, pady=5, sticky="e")
+
+    entry_search = tk.Entry(frame, font=("Arial", 12))
+    entry_search.grid(row=9, column=1, padx=5, pady=5)
+
+    button_search = tk.Button(frame, text="Search", font=("Arial", 12), bg="#b3ffb3", fg="black", command=search_item)
+    button_search.grid(row=10, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
     # Listbox with ScrollBar
     listbox_frame = tk.Frame(frame)
-    listbox_frame.grid(row=9, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+    listbox_frame.grid(row=11, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
     listbox = tk.Listbox(listbox_frame, font=("Arial", 12), height=8)
     listbox.pack(side="left", fill="both", expand=True)
@@ -177,10 +170,8 @@ def main():
     listbox.config(yscrollcommand=scrollbar.set)
     scrollbar.config(command=listbox.yview)
 
-      # Confirm on close
     root.mainloop()
 
 # Run the main function
 if __name__ == "__main__":
     main()
-
