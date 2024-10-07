@@ -7,6 +7,8 @@ entry_item = None
 entry_amount = None
 entry_price = None
 listbox = None
+button_remove = None
+button_calculate = None
 
 # Function to display the shopping list
 def display_list():
@@ -14,6 +16,7 @@ def display_list():
     for item, details in shopping_list.items():
         amount, price = details
         listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price})")
+    update_buttons_state()  # Update the button states whenever the list is displayed
 
 # Function to add an item to the shopping list
 def add_item():
@@ -57,9 +60,18 @@ def calculate_total():
     total = sum(amount * price for amount, price in shopping_list.values())
     messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: ${total:.2f}")
 
+# Function to update the state of the buttons
+def update_buttons_state():
+    if shopping_list:
+        button_remove.config(state=tk.NORMAL)
+        button_calculate.config(state=tk.NORMAL)
+    else:
+        button_remove.config(state=tk.DISABLED)
+        button_calculate.config(state=tk.DISABLED)
+
 # Main function
 def main():
-    global entry_item, entry_amount, entry_price, listbox
+    global entry_item, entry_amount, entry_price, listbox, button_remove, button_calculate
     root = tk.Tk()
     root.title("Shopping List")
 
@@ -93,13 +105,13 @@ def main():
     button_add = tk.Button(frame, text="Add Item", command=add_item)
     button_add.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_remove = tk.Button(frame, text="Remove Item", command=remove_item)
+    button_remove = tk.Button(frame, text="Remove Item", command=remove_item, state=tk.DISABLED)
     button_remove.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     button_display = tk.Button(frame, text="Display List", command=display_list)
     button_display.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_calculate = tk.Button(frame, text="Calculate Total Cost", command=calculate_total)
+    button_calculate = tk.Button(frame, text="Calculate Total Cost", command=calculate_total, state=tk.DISABLED)
     button_calculate.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     listbox = tk.Listbox(frame)
