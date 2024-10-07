@@ -7,21 +7,20 @@ entry_amount = None
 entry_price = None
 listbox = None
 button_remove = None
-<<<<<<< HEAD
+
 button_calculate = None
-=======
 button_calculate =None
 
->>>>>>> 07f49ba1bb693af7fcca8f17a081b1ade71156f7
+
 
 def display_list():
     listbox.delete(0, tk.END)
     for item, details in shopping_list.items():
         amount, price = details
         listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price})")
-<<<<<<< HEAD
+
     update_buttons_state()  # Update the button states whenever the list is displayed
-=======
+
     
     #enable or disable buttons 
     if shopping_list:
@@ -30,7 +29,7 @@ def display_list():
     else:
         button_remove.config(state=tk.DISABLED)
         button_calculate.config(state= tk.DISABLED)
->>>>>>> 07f49ba1bb693af7fcca8f17a081b1ade71156f7
+
 
 
 
@@ -110,7 +109,6 @@ def calculate_total():
     total = sum(amount * price for amount, price in shopping_list.values())
     messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: ${total:.2f}")
 
-<<<<<<< HEAD
 # Function to update the state of the buttons
 def update_buttons_state():
     if shopping_list:
@@ -121,8 +119,8 @@ def update_buttons_state():
         button_calculate.config(state=tk.DISABLED)
 
 # Main function
-=======
->>>>>>> 07f49ba1bb693af7fcca8f17a081b1ade71156f7
+
+
 def main():
     global entry_item, entry_amount, entry_price, listbox, button_remove, button_calculate
     root = tk.Tk()
@@ -161,24 +159,23 @@ def main():
     button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#b3ffb3", fg="black", command=add_item)
     button_add.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-<<<<<<< HEAD
+
     button_remove = tk.Button(frame, text="Remove Item", command=remove_item, state=tk.DISABLED)
     button_remove.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")
-=======
+
     button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#ffcc99", fg="black", command=edit_item)
-    button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")  # New Edit button
->>>>>>> 07f49ba1bb693af7fcca8f17a081b1ade71156f7
+    button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")  
 
     button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#ff9999", fg="black", command=remove_item)
     button_remove.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-<<<<<<< HEAD
+
     button_calculate = tk.Button(frame, text="Calculate Total Cost", command=calculate_total, state=tk.DISABLED)
     button_calculate.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
-=======
+
     button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#cceeff", fg="black", command=display_list)
     button_display.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
->>>>>>> 07f49ba1bb693af7fcca8f17a081b1ade71156f7
+
 
     button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#ffff99", fg="black", command=calculate_total)
     button_calculate.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
