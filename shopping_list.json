@@ -1,1 +1,1 @@
-{"soap": [1, 50.0], "toothbrush": [1, 75.0], "Apple": [2, 60.0], "Bread": [1, 30.0], "milk": [2, 60.0]}
+{"toothbrush": [1, 75.0, "Grocery"], "Apple": [2, 60.0, "Grocery"], "Bread": [1, 30.0, "Grocery"], "milk": [2, 60.0, "Grocery"], "tomato": [3, 55.0, "Grocery"]}
