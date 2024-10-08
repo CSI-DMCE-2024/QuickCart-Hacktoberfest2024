@@ -13,6 +13,7 @@ combobox_category = None
 combobox_filter = None
 filename = "shopping_list.json"
 categories = ["Grocery", "Stationery", "Electronics", "Household", "Clothing", "Other", "All"]
+units = ["unit(s)", "Kg", "liters", "dozens", "grams", "milliliters", "pack(s)"]
 
 # Function to load shopping list from a JSON file
 def load_list():
@@ -30,36 +31,37 @@ def save_list():
 def display_list(category_filter="All"):
     listbox.delete(0, tk.END)
     for item, details in shopping_list.items():
-        amount, price, category = details
+        amount, price, category, unit = details
         if category_filter == "All" or category_filter == category:
-            listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price:.2f}, Category: {category})")
+            listbox.insert(tk.END, f"- {item} (Amount: {amount} {unit}, Price: ${price:.2f}, Category: {category})")
 
 # Function to add an item to the shopping list
 def add_item():
-    global entry_item, entry_amount, entry_price, combobox_category
+    global entry_item, entry_amount, entry_price, combobox_category, combobox_unit
     item = entry_item.get().strip()
     amount = entry_amount.get().strip()
     price = entry_price.get().strip()
     category = combobox_category.get()
+    unit = combobox_unit.get()
 
-    if item and amount and price and category:
+    if item and amount and price and category and unit:
         try:
-            amount = int(amount)
+            amount = float(amount)
             price = float(price)
             if amount < 0 or price < 0:
                 raise ValueError("Negative values are not allowed.")
             if item in shopping_list:
                 shopping_list[item][0] += amount  # Update amount
             else:
-                shopping_list[item] = [amount, price, category]  # Store amount, price, and category
+                shopping_list[item] = [amount, price, category, unit]  # Store amount, price, category, and unit
             clear_entries()
             display_list(combobox_filter.get())  # Refresh the list with the current filter
             save_list()  # Save the list after adding
-            messagebox.showinfo("Success", f"{amount} {item}(s) at ${price:.2f} each in {category} category have been added to your shopping list.")
+            messagebox.showinfo("Success", f"{amount} {unit} of {item}(s) at ${price:.2f} each in {category} category have been added to your shopping list.")
         except ValueError as e:
             messagebox.showerror("Error", str(e))
     else:
-        messagebox.showerror("Error", "Please enter item, amount, price, and select a category.")
+        messagebox.showerror("Error", "Please enter item, amount, price, select a unit, and category.")
 
 # Function to edit the amount of an item in the shopping list
 def edit_item():
@@ -135,10 +137,11 @@ def clear_entries():
     entry_amount.delete(0, tk.END)
     entry_price.delete(0, tk.END)
     combobox_category.set('')  # Clear category selection
+    combobox_unit.set('')  # Clear unit selection
 
 # Main function to set up the UI
 def main():
-    global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter
+    global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter, combobox_unit
     load_list()  # Load the shopping list at startup
     root = tk.Tk()
     root.title("Shopping List")
@@ -165,6 +168,13 @@ def main():
 
     entry_amount = tk.Entry(frame, font=("Arial", 12))
     entry_amount.grid(row=1, column=1, padx=5, pady=5)
+
+    # Unit dropdown
+    label_unit = tk.Label(frame, text="Unit:", bg="#f0f0f0", font=("Arial", 12))
+    label_unit.grid(row=1, column=2, padx=5, pady=5, sticky="e")
+
+    combobox_unit = ttk.Combobox(frame, values=units, font=("Arial", 12), state="readonly")
+    combobox_unit.grid(row=1, column=3, padx=5, pady=5)    
 
     label_price = tk.Label(frame, text="Price ($):", bg="#f0f0f0", font=("Arial", 12))
     label_price.grid(row=2, column=0, padx=5, pady=5, sticky="e")
