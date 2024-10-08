@@ -188,44 +188,36 @@ def main():
     combobox_filter.set("All")  # Default filter is "All"
     combobox_filter.bind("<<ComboboxSelected>>", lambda e: filter_items())
 
-    # Buttons with styles
+    # Buttons organized into two columns
     button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#b3ffb3", fg="black", command=add_item)
-    button_add.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_add.grid(row=5, column=0, padx=5, pady=5, sticky="we")
 
-    button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#ffcc99", fg="black", command=edit_item)
-    button_edit.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#b3ffb3", fg="black", command=edit_item)
+    button_edit.grid(row=5, column=1, padx=5, pady=5, sticky="we")
 
-    button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#ff9999", fg="black", command=remove_item)
-    button_remove.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#ffb3b3", fg="black", command=remove_item)
+    button_remove.grid(row=6, column=0, padx=5, pady=5, sticky="we")
 
-    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#cceeff", fg="black", command=display_list)
-    button_display.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#ffffb3", fg="black", command=lambda: display_list(combobox_filter.get()))
+    button_display.grid(row=6, column=1, padx=5, pady=5, sticky="we")
 
-    button_search = tk.Button(frame, text="Search Item", font=("Arial", 12), bg="#ccffcc", fg="black", command=search_item)
-    button_search.grid(row=9, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_total = tk.Button(frame, text="Total Cost", font=("Arial", 12), bg="#ffffb3", fg="black", command=calculate_total)
+    button_total.grid(row=7, column=0, padx=5, pady=5, sticky="we")
 
-    button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#ffff99", fg="black", command=calculate_total)
-    button_calculate.grid(row=10, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_search = tk.Button(frame, text="Search Item", font=("Arial", 12), bg="#ffffb3", fg="black", command=search_item)
+    button_search.grid(row=7, column=1, padx=5, pady=5, sticky="we")
 
-    button_clear = tk.Button(frame, text="Clear List", font=("Arial", 12), bg="#ffccff", fg="black", command=clear_list)
-    button_clear.grid(row=11, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_clear = tk.Button(frame, text="Clear List", font=("Arial", 12), bg="#ffb3b3", fg="black", command=clear_list)
+    button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")  # Span across both columns
 
-    # Listbox to display the items
-    listbox_frame = tk.Frame(root)
-    listbox_frame.pack(padx=10, pady=10, fill='both', expand=True)
+    # Listbox to display shopping list
+    listbox = tk.Listbox(root, font=("Arial", 12), selectmode=tk.SINGLE, bg="#f9f9f9")
+    listbox.pack(padx=10, pady=10, fill='both', expand=True)
 
-    listbox = tk.Listbox(listbox_frame, font=("Arial", 12), width=50, height=10)
-    listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    # Display initial list
+    display_list()
 
-    scrollbar = tk.Scrollbar(listbox_frame)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-    listbox.config(yscrollcommand=scrollbar.set)
-    scrollbar.config(command=listbox.yview)
-
-    display_list()  # Initial display of the shopping list
     root.mainloop()
 
-# Run the main function
 if __name__ == "__main__":
     main()
