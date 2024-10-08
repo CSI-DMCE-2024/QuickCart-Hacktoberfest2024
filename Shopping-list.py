@@ -190,25 +190,25 @@ def main():
 
     # Buttons with styles
     button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#b3ffb3", fg="black", command=add_item)
-    button_add.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_add.grid(row=5, column=0, padx=5, pady=5, sticky="we")
 
     button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#ffcc99", fg="black", command=edit_item)
-    button_edit.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_edit.grid(row=5, column=1, padx=5, pady=5, sticky="we")
 
     button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#ff9999", fg="black", command=remove_item)
-    button_remove.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_remove.grid(row=6, column=0, padx=5, pady=5, sticky="we")
 
     button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#cceeff", fg="black", command=display_list)
-    button_display.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_display.grid(row=6, column=1, padx=5, pady=5, sticky="we")
 
     button_search = tk.Button(frame, text="Search Item", font=("Arial", 12), bg="#ccffcc", fg="black", command=search_item)
-    button_search.grid(row=9, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_search.grid(row=7, column=0, padx=5, pady=5, sticky="we")
 
     button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#ffff99", fg="black", command=calculate_total)
-    button_calculate.grid(row=10, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_calculate.grid(row=7, column=1, padx=5, pady=5, sticky="we")
 
     button_clear = tk.Button(frame, text="Clear List", font=("Arial", 12), bg="#ffccff", fg="black", command=clear_list)
-    button_clear.grid(row=11, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     # Listbox to display the items
     listbox_frame = tk.Frame(root)
