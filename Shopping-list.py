@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import json
 import os
+from PIL import Image, ImageTk, ImageDraw
 
 # Global variables
 shopping_list = {}
@@ -13,6 +14,16 @@ combobox_category = None
 combobox_filter = None
 filename = "shopping_list.json"
 categories = ["Grocery", "Stationery", "Electronics", "Household", "Clothing", "Other", "All"]
+
+# Function to create a rounded button image
+def create_rounded_button(width, height, radius, color):
+    image = Image.new('RGBA', (width, height), (0, 0, 0, 0))  # Transparent background
+    draw = ImageDraw.Draw(image)
+    
+    # Draw rounded rectangle
+    draw.rounded_rectangle((0, 0, width, height), radius, fill=color)
+    
+    return ImageTk.PhotoImage(image)
 
 # Function to load shopping list from a JSON file
 def load_list():
@@ -136,79 +147,76 @@ def clear_entries():
     entry_price.delete(0, tk.END)
     combobox_category.set('')  # Clear category selection
 
+# Function to set up custom buttons with rounded edges and blue-beige theme
+def create_custom_button(frame, text, command, row, column, padx=5, pady=5, width=200, height=50, radius=25, columnspan=1):
+    # Create rounded button image in blue
+    button_image = create_rounded_button(width, height, radius, "#005f99")  # Blue color
+    
+    button = tk.Button(frame, text=text, command=command, image=button_image, compound="center", font=("Arial", 12, "bold"), fg="beige", bg="beige", borderwidth=0)
+    button.image = button_image  # Keep reference to the image
+    button.grid(row=row, column=column, padx=padx, pady=pady, sticky="we", columnspan=columnspan)
+
 # Main function to set up the UI
 def main():
     global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter
     load_list()  # Load the shopping list at startup
     root = tk.Tk()
     root.title("Shopping List")
-    root.configure(bg="pink")
+    root.configure(bg="beige")
 
-    frame_logo = tk.Frame(root, bg="#e6ffe6")
+    # Logo
+    frame_logo = tk.Frame(root, bg="beige")
     frame_logo.pack(padx=10, pady=10, fill='x')
 
-    label_logo = tk.Label(frame_logo, text="SHOPPING LIST", font=("Helvetica", 24, "bold"), bg="#e6ffe6", fg="#006600")
+    label_logo = tk.Label(frame_logo, text="SHOPPING LIST", font=("Helvetica", 24, "bold"), bg="beige", fg="#005f99")
     label_logo.pack()
 
     # Main Input Frame
-    frame = tk.Frame(root, bg="#007FFF")
+    frame = tk.Frame(root, bg="beige")
     frame.pack(padx=10, pady=10, fill='both', expand=True)
 
-    label_item = tk.Label(frame, text="Item:", bg="#f0f0f0", font=("Arial", 12))
+    label_item = tk.Label(frame, text="Item:", bg="beige", fg="blue", font=("Arial", 12))
     label_item.grid(row=0, column=0, padx=5, pady=5, sticky="e")
 
-    entry_item = tk.Entry(frame, font=("Arial", 12))
+    entry_item = tk.Entry(frame, font=("Arial", 12), bg="white", fg="black")
     entry_item.grid(row=0, column=1, padx=5, pady=5)
 
-    label_amount = tk.Label(frame, text="Amount:", bg="#f0f0f0", font=("Arial", 12))
+    label_amount = tk.Label(frame, text="Amount:", bg="beige", fg="blue", font=("Arial", 12))
     label_amount.grid(row=1, column=0, padx=5, pady=5, sticky="e")
 
-    entry_amount = tk.Entry(frame, font=("Arial", 12))
+    entry_amount = tk.Entry(frame, font=("Arial", 12), bg="white", fg="black")
     entry_amount.grid(row=1, column=1, padx=5, pady=5)
 
-    label_price = tk.Label(frame, text="Price ($):", bg="#f0f0f0", font=("Arial", 12))
+    label_price = tk.Label(frame, text="Price ($):", bg="beige", fg="blue", font=("Arial", 12))
     label_price.grid(row=2, column=0, padx=5, pady=5, sticky="e")
 
-    entry_price = tk.Entry(frame, font=("Arial", 12))
+    entry_price = tk.Entry(frame, font=("Arial", 12), bg="white", fg="black")
     entry_price.grid(row=2, column=1, padx=5, pady=5)
 
     # Category dropdown
-    label_category = tk.Label(frame, text="Category:", bg="#f0f0f0", font=("Arial", 12))
+    label_category = tk.Label(frame, text="Category:", bg="beige", fg="blue", font=("Arial", 12))
     label_category.grid(row=3, column=0, padx=5, pady=5, sticky="e")
 
-    combobox_category = ttk.Combobox(frame, values=categories[:-1], font=("Arial", 12), state="readonly")  # Exclude "All"
+    combobox_category = ttk.Combobox(frame, values=categories[:-1], font=("Arial", 12), state="readonly")
     combobox_category.grid(row=3, column=1, padx=5, pady=5)
 
     # Filter dropdown
-    label_filter = tk.Label(frame, text="Filter By:", bg="#f0f0f0", font=("Arial", 12))
+    label_filter = tk.Label(frame, text="Filter By:", bg="beige", fg="blue", font=("Arial", 12))
     label_filter.grid(row=4, column=0, padx=5, pady=5, sticky="e")
 
     combobox_filter = ttk.Combobox(frame, values=categories, font=("Arial", 12), state="readonly")
     combobox_filter.grid(row=4, column=1, padx=5, pady=5)
-    combobox_filter.set("All")  # Default filter is "All"
+    combobox_filter.set("All")
     combobox_filter.bind("<<ComboboxSelected>>", lambda e: filter_items())
 
-    # Buttons with styles
-    button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#b3ffb3", fg="black", command=add_item)
-    button_add.grid(row=5, column=0, padx=5, pady=5, sticky="we")
-
-    button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#ffcc99", fg="black", command=edit_item)
-    button_edit.grid(row=5, column=1, padx=5, pady=5, sticky="we")
-
-    button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#ff9999", fg="black", command=remove_item)
-    button_remove.grid(row=6, column=0, padx=5, pady=5, sticky="we")
-
-    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#cceeff", fg="black", command=display_list)
-    button_display.grid(row=6, column=1, padx=5, pady=5, sticky="we")
-
-    button_search = tk.Button(frame, text="Search Item", font=("Arial", 12), bg="#ccffcc", fg="black", command=search_item)
-    button_search.grid(row=7, column=0, padx=5, pady=5, sticky="we")
-
-    button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#ffff99", fg="black", command=calculate_total)
-    button_calculate.grid(row=7, column=1, padx=5, pady=5, sticky="we")
-
-    button_clear = tk.Button(frame, text="Clear List", font=("Arial", 12), bg="#ffccff", fg="black", command=clear_list)
-    button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+    # Create buttons
+    create_custom_button(frame, "Add Item", add_item, row=5, column=0)
+    create_custom_button(frame, "Edit Item", edit_item, row=5, column=1)
+    create_custom_button(frame, "Remove Item", remove_item, row=6, column=0)
+    create_custom_button(frame, "Display List", lambda: display_list(combobox_filter.get()), row=6, column=1)
+    create_custom_button(frame, "Search Item", search_item, row=7, column=0)
+    create_custom_button(frame, "Calculate Total", calculate_total, row=7, column=1)
+    create_custom_button(frame, "Clear List", clear_list, row=8, column=0, columnspan=2)
 
     # Listbox to display the items
     listbox_frame = tk.Frame(root)
