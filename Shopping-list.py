@@ -65,7 +65,6 @@ def remove_item():
     display_list()
 
 
-# calculate the total cost of all items
 
 # Function to edit the amount of an item in the shopping list
 def edit_item():
@@ -106,53 +105,53 @@ def main():
     global entry_item, entry_amount, entry_price, listbox
     root = tk.Tk()
     root.title("Shopping List")
-    root.configure(bg="pink")
+    root.configure(bg="#2d3250")
 
-    frame_logo = tk.Frame(root, bg="#e6ffe6")
+    frame_logo = tk.Frame(root, bg="#2d3250")
     frame_logo.pack(padx=10, pady=10, fill='x')
 
-    label_logo = tk.Label(frame_logo, text="SHOPPING LIST", font=("Helvetica", 24, "bold"), bg="#e6ffe6", fg="#006600")
+    label_logo = tk.Label(frame_logo, text="SHOPPING LIST", font=("Helvetica", 24, "bold"), bg="#2d3250", fg="#ffffff")
     label_logo.pack()
 
     #Main Input Frame
-    frame = tk.Frame(root, bg="#007FFF")
+    frame = tk.Frame(root, bg="#4e545f")
     frame.pack(padx=10, pady=10, fill='both', expand=True)
 
-    label_item = tk.Label(frame, text="Item:", bg="#f0f0f0", font=("Arial", 12))
+    label_item = tk.Label(frame, text="Item:", bg="#4e545f", fg="#ffffff" , font=("Arial", 12))
     label_item.grid(row=0, column=0, padx=5, pady=5, sticky="e")
 
     entry_item = tk.Entry(frame, font=("Arial", 12))
     entry_item.grid(row=0, column=1, padx=5, pady=5)
 
-    label_amount = tk.Label(frame, text="Amount:", bg="#f0f0f0", font=("Arial", 12))
+    label_amount = tk.Label(frame, text="Amount:", bg="#4e545f", font=("Arial", 12))
     label_amount.grid(row=1, column=0, padx=5, pady=5, sticky="e")
 
     entry_amount = tk.Entry(frame, font=("Arial", 12))
     entry_amount.grid(row=1, column=1, padx=5, pady=5)
 
-    label_price = tk.Label(frame, text="Price ($):", bg="#f0f0f0", font=("Arial", 12))
+    label_price = tk.Label(frame, text="Price ($):", bg="#4e545f",fg="#ffffff" , font=("Arial", 12))
     label_price.grid(row=2, column=0, padx=5, pady=5, sticky="e")
 
     entry_price = tk.Entry(frame, font=("Arial", 12))
     entry_price.grid(row=2, column=1, padx=5, pady=5)
 
     #Buttons with styles
-    button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#b3ffb3", fg="black", command=add_item)
+    button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#FF7F50", fg="white", command=add_item)
     button_add.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#ffcc99", fg="black", command=edit_item)
+    button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#A0A3B2", fg="white", command=edit_item)
     button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")  # New Edit button
 
-    button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#ff9999", fg="black", command=remove_item)
+    button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#FF7F50", fg="white", command=remove_item)
     button_remove.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#cceeff", fg="black", command=display_list)
+    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#B0B3C5", fg="black", command=display_list)
     button_display.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#ffff99", fg="black", command=calculate_total)
+    button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#FF7F50", fg="white", command=calculate_total)
     button_calculate.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_clear = tk.Button(frame, text="Clear List", command=clear_list, font=("Arial", 12), bg="#ffff99", fg="black")
+    button_clear = tk.Button(frame, text="Clear List", command=clear_list, font=("Arial", 12), bg="#A0A3B2", fg="white")
     button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
      #Listbox with ScrollBar
