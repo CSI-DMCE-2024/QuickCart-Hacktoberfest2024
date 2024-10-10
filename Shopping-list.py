@@ -3,12 +3,35 @@ from tkinter import messagebox, ttk
 import json
 import os
 
+
+shopping_list = {} 
+
 # Global variables
 shopping_list = {}
+
 entry_item = None
 entry_amount = None
 entry_price = None
 listbox = None
+
+button_remove = None
+button_calculate =None
+
+
+def display_list():
+    listbox.delete(0, tk.END)
+    for item, details in shopping_list.items():
+        amount, price = details
+        listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price})")
+    
+    #enable or disable buttons 
+    if shopping_list:
+        button_remove.congig(state=tk.NORMAL)
+        button_calculate.config(state=tk.NORMAL)
+    else:
+        button_remove.config(state=tk.DISABLED)
+        button_calculate.config(state= tk.DISABLED)
+
 combobox_category = None
 combobox_filter = None
 filename = "shopping_list.json"
@@ -34,7 +57,10 @@ def display_list(category_filter="All"):
         if category_filter == "All" or category_filter == category:
             listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price:.2f}, Category: {category})")
 
-# Function to add an item to the shopping list
+
+
+
+#  add item to the shopping list
 def add_item():
     global entry_item, entry_amount, entry_price, combobox_category
     item = entry_item.get().strip()
@@ -51,6 +77,33 @@ def add_item():
             if item in shopping_list:
                 shopping_list[item][0] += amount  # Update amount
             else:
+
+                shopping_list[item] = [amount, price]  # Store amount and price
+            entry_item.delete(0, tk.END)
+            entry_amount.delete(0, tk.END)
+            entry_price.delete(0, tk.END)
+            display_list()
+            messagebox.showinfo("Success", f"{amount} {item}(s) at ${price} each have added to your shopping list.")
+        except ValueError:
+            messagebox.showerror("Error", "enter valid numbers for amount and price.")
+    else:
+        messagebox.showerror("Error", "Please enter item, amount, and price.")
+
+# remove item from the shopping list
+def remove_item():
+    global entry_item
+    item = entry_item.get()
+    if item in shopping_list:
+        del shopping_list[item]
+        entry_item.delete(0, tk.END)
+        display_list()
+        messagebox.showinfo("Success", f"{item} has been removed from your shopping list.")
+    else:
+        messagebox.showerror("Error", f"{item} is not in your shopping list.")
+    display_list()
+
+
+
                 shopping_list[item] = [amount, price, category]  # Store amount, price, and category
             clear_entries()
             display_list(combobox_filter.get())  # Refresh the list with the current filter
@@ -60,6 +113,7 @@ def add_item():
             messagebox.showerror("Error", str(e))
     else:
         messagebox.showerror("Error", "Please enter item, amount, price, and select a category.")
+
 
 # Function to edit the amount of an item in the shopping list
 def edit_item():
@@ -107,9 +161,12 @@ def clear_list():
     messagebox.showinfo("Success", "All items have been cleared from your shopping list.")
 
 # Function to calculate the total cost of all items
+
 def calculate_total():
     total = sum(amount * price for amount, price, _ in shopping_list.values())
     messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: ${total:.2f}")
+
+
 
 # Function to search for an item in the shopping list
 def search_item():
@@ -137,40 +194,64 @@ def clear_entries():
     combobox_category.set('')  # Clear category selection
 
 # Main function to set up the UI
+
 def main():
     global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter
     load_list()  # Load the shopping list at startup
     root = tk.Tk()
     root.title("Shopping List")
-    root.configure(bg="pink")
+    root.configure(bg="#2d3250")
 
-    frame_logo = tk.Frame(root, bg="#e6ffe6")
+    frame_logo = tk.Frame(root, bg="#2d3250")
     frame_logo.pack(padx=10, pady=10, fill='x')
 
-    label_logo = tk.Label(frame_logo, text="SHOPPING LIST", font=("Helvetica", 24, "bold"), bg="#e6ffe6", fg="#006600")
+    label_logo = tk.Label(frame_logo, text="SHOPPING LIST", font=("Helvetica", 24, "bold"), bg="#2d3250", fg="#ffffff")
     label_logo.pack()
 
+
+    
+
     # Main Input Frame
-    frame = tk.Frame(root, bg="#007FFF")
+    frame = tk.Frame(root, bg="#4e545f")
+
     frame.pack(padx=10, pady=10, fill='both', expand=True)
 
-    label_item = tk.Label(frame, text="Item:", bg="#f0f0f0", font=("Arial", 12))
+    label_item = tk.Label(frame, text="Item:", bg="#4e545f", fg="#ffffff" , font=("Arial", 12))
     label_item.grid(row=0, column=0, padx=5, pady=5, sticky="e")
 
     entry_item = tk.Entry(frame, font=("Arial", 12))
     entry_item.grid(row=0, column=1, padx=5, pady=5)
 
-    label_amount = tk.Label(frame, text="Amount:", bg="#f0f0f0", font=("Arial", 12))
+    label_amount = tk.Label(frame, text="Amount:", bg="#4e545f", font=("Arial", 12))
     label_amount.grid(row=1, column=0, padx=5, pady=5, sticky="e")
 
     entry_amount = tk.Entry(frame, font=("Arial", 12))
     entry_amount.grid(row=1, column=1, padx=5, pady=5)
 
-    label_price = tk.Label(frame, text="Price ($):", bg="#f0f0f0", font=("Arial", 12))
+    label_price = tk.Label(frame, text="Price ($):", bg="#4e545f",fg="#ffffff" , font=("Arial", 12))
     label_price.grid(row=2, column=0, padx=5, pady=5, sticky="e")
 
     entry_price = tk.Entry(frame, font=("Arial", 12))
     entry_price.grid(row=2, column=1, padx=5, pady=5)
+
+
+    #Buttons with styles
+    button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#FF7F50", fg="white", command=add_item)
+    button_add.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#A0A3B2", fg="white", command=edit_item)
+    button_edit.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="we")  # New Edit button
+
+    button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#FF7F50", fg="white", command=remove_item)
+    button_remove.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#B0B3C5", fg="black", command=display_list)
+    button_display.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#FF7F50", fg="white", command=calculate_total)
+    button_calculate.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    button_clear = tk.Button(frame, text="Clear List", command=clear_list, font=("Arial", 12), bg="#A0A3B2", fg="white")
 
     # Category dropdown
     label_category = tk.Label(frame, text="Category:", bg="#f0f0f0", font=("Arial", 12))
@@ -208,6 +289,7 @@ def main():
     button_calculate.grid(row=7, column=1, padx=5, pady=5, sticky="we")
 
     button_clear = tk.Button(frame, text="Clear List", font=("Arial", 12), bg="#ffccff", fg="black", command=clear_list)
+
     button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
     # Listbox to display the items
@@ -223,7 +305,12 @@ def main():
     listbox.config(yscrollcommand=scrollbar.set)
     scrollbar.config(command=listbox.yview)
 
+
+    display_list()
+    
+
     display_list()  # Initial display of the shopping list
+
     root.mainloop()
 
 # Run the main function
