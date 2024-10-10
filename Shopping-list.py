@@ -11,6 +11,8 @@ entry_price = None
 listbox = None
 combobox_category = None
 combobox_filter = None
+button_remove = None
+button_calculate = None
 filename = "shopping_list.json"
 categories = ["Grocery", "Stationery", "Electronics", "Household", "Clothing", "Other", "All"]
 
@@ -26,6 +28,15 @@ def save_list():
     with open(filename, 'w') as f:
         json.dump(shopping_list, f)
 
+# Function to enable or disable buttons based on shopping list content
+def update_button_state():
+    if shopping_list:
+        button_remove.config(state=tk.NORMAL)
+        button_calculate.config(state=tk.NORMAL)
+    else:
+        button_remove.config(state=tk.DISABLED)
+        button_calculate.config(state=tk.DISABLED)
+
 # Function to display the shopping list with optional filtering
 def display_list(category_filter="All"):
     listbox.delete(0, tk.END)
@@ -33,6 +44,7 @@ def display_list(category_filter="All"):
         amount, price, category = details
         if category_filter == "All" or category_filter == category:
             listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price:.2f}, Category: {category})")
+    update_button_state()  # Update button state after displaying the list
 
 # Function to add an item to the shopping list
 def add_item():
@@ -138,7 +150,7 @@ def clear_entries():
 
 # Main function to set up the UI
 def main():
-    global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter
+    global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter, button_remove, button_calculate
     load_list()  # Load the shopping list at startup
     root = tk.Tk()
     root.title("Shopping List")
@@ -184,48 +196,4 @@ def main():
     label_filter.grid(row=4, column=0, padx=5, pady=5, sticky="e")
 
     combobox_filter = ttk.Combobox(frame, values=categories, font=("Arial", 12), state="readonly")
-    combobox_filter.grid(row=4, column=1, padx=5, pady=5)
-    combobox_filter.set("All")  # Default filter is "All"
-    combobox_filter.bind("<<ComboboxSelected>>", lambda e: filter_items())
-
-    # Buttons with styles
-    button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#b3ffb3", fg="black", command=add_item)
-    button_add.grid(row=5, column=0, padx=5, pady=5, sticky="we")
-
-    button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#ffcc99", fg="black", command=edit_item)
-    button_edit.grid(row=5, column=1, padx=5, pady=5, sticky="we")
-
-    button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#ff9999", fg="black", command=remove_item)
-    button_remove.grid(row=6, column=0, padx=5, pady=5, sticky="we")
-
-    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#cceeff", fg="black", command=display_list)
-    button_display.grid(row=6, column=1, padx=5, pady=5, sticky="we")
-
-    button_search = tk.Button(frame, text="Search Item", font=("Arial", 12), bg="#ccffcc", fg="black", command=search_item)
-    button_search.grid(row=7, column=0, padx=5, pady=5, sticky="we")
-
-    button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#ffff99", fg="black", command=calculate_total)
-    button_calculate.grid(row=7, column=1, padx=5, pady=5, sticky="we")
-
-    button_clear = tk.Button(frame, text="Clear List", font=("Arial", 12), bg="#ffccff", fg="black", command=clear_list)
-    button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
-
-    # Listbox to display the items
-    listbox_frame = tk.Frame(root)
-    listbox_frame.pack(padx=10, pady=10, fill='both', expand=True)
-
-    listbox = tk.Listbox(listbox_frame, font=("Arial", 12), width=50, height=10)
-    listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-    scrollbar = tk.Scrollbar(listbox_frame)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-    listbox.config(yscrollcommand=scrollbar.set)
-    scrollbar.config(command=listbox.yview)
-
-    display_list()  # Initial display of the shopping list
-    root.mainloop()
-
-# Run the main function
-if __name__ == "__main__":
-    main()
+   
