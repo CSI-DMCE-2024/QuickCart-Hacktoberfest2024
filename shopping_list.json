@@ -1,1 +1,42 @@
-{}
+{
+    "Fan": [
+        100,
+        2500.0,
+        "Electronics"
+    ],
+    "Shirt": [
+        15,
+        1400.0,
+        "Clothing"
+    ],
+    "Washing Machine": [
+        150,
+        20000.0,
+        "Electronics"
+    ],
+    "Watermelon": [
+        2,
+        50.0,
+        "Grocery"
+    ],
+    "Pant": [
+        20,
+        2000.0,
+        "Clothing"
+    ],
+    "Toy Car": [
+        2,
+        15000.0,
+        "Other"
+    ],
+    "Pen": [
+        100,
+        10.0,
+        "Stationery"
+    ],
+    "Copy": [
+        25,
+        50.0,
+        "Stationery"
+    ]
+}

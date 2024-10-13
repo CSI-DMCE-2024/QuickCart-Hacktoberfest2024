@@ -2,16 +2,22 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import json
 import os
+import urllib.parse
+import webbrowser  # To open the WhatsApp link in the browser
 
 # Global variables
 shopping_list = {}
 entry_item = None
 entry_amount = None
 entry_price = None
-listbox = None
+tree = None
 combobox_category = None
 combobox_filter = None
-filename = "shopping_list.json"
+
+# Path to the JSON file in the same directory as the script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+filename = os.path.join(current_dir, "shopping_list.json")
+
 categories = ["Grocery", "Stationery", "Electronics", "Household", "Clothing", "Other", "All"]
 
 # Function to load shopping list from a JSON file
@@ -20,19 +26,22 @@ def load_list():
     if os.path.exists(filename):
         with open(filename, 'r') as f:
             shopping_list = json.load(f)
+    else:
+        shopping_list = {}  # Initialize an empty dictionary if the file does not exist
 
 # Function to save shopping list to a JSON file
 def save_list():
     with open(filename, 'w') as f:
-        json.dump(shopping_list, f)
+        json.dump(shopping_list, f, indent=4)  # Pretty-print the JSON with indentation
 
 # Function to display the shopping list with optional filtering
 def display_list(category_filter="All"):
-    listbox.delete(0, tk.END)
+    for row in tree.get_children():
+        tree.delete(row)  # Remove all previous rows
     for item, details in shopping_list.items():
         amount, price, category = details
         if category_filter == "All" or category_filter == category:
-            listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price:.2f}, Category: {category})")
+            tree.insert("", tk.END, values=(item, amount, f"${price:.2f}", category), iid=item)
 
 # Function to add an item to the shopping list
 def add_item():
@@ -49,7 +58,7 @@ def add_item():
             if amount < 0 or price < 0:
                 raise ValueError("Negative values are not allowed.")
             if item in shopping_list:
-                shopping_list[item][0] += amount  # Update amount
+                shopping_list[item][0] += amount  # Update amount if item already exists
             else:
                 shopping_list[item] = [amount, price, category]  # Store amount, price, and category
             clear_entries()
@@ -61,73 +70,20 @@ def add_item():
     else:
         messagebox.showerror("Error", "Please enter item, amount, price, and select a category.")
 
-# Function to edit the amount of an item in the shopping list
-def edit_item():
-    global entry_item, entry_amount
-    item = entry_item.get().strip()
-    new_amount = entry_amount.get().strip()
-
-    if item and new_amount:
-        try:
-            new_amount = int(new_amount)
-            if new_amount < 0:
-                raise ValueError("Negative values are not allowed.")
-            if item in shopping_list:
-                shopping_list[item][0] = new_amount  # Update the item's amount
-                clear_entries()
-                display_list(combobox_filter.get())  # Refresh the list with the current filter
-                save_list()  # Save the list after editing
-                messagebox.showinfo("Success", f"The amount of {item} has been updated to {new_amount}.")
-            else:
-                messagebox.showerror("Error", f"{item} is not in your shopping list.")
-        except ValueError as e:
-            messagebox.showerror("Error", str(e))
-    else:
-        messagebox.showerror("Error", "Please enter both item and new amount.")
-
 # Function to remove an item from the shopping list
 def remove_item():
-    global entry_item
-    item = entry_item.get().strip()
-    if item in shopping_list:
-        del shopping_list[item]
-        clear_entries()
-        display_list(combobox_filter.get())  # Refresh the list with the current filter
-        save_list()  # Save the list after removal
-        messagebox.showinfo("Success", f"{item} has been removed from your shopping list.")
+    selected_item = tree.focus()  # Get the selected item
+    if selected_item:
+        item = tree.item(selected_item)['values'][0]  # Get the item name from the selected row
+        if item in shopping_list:
+            del shopping_list[item]
+            display_list(combobox_filter.get())  # Refresh the list with the current filter
+            save_list()  # Save the list after removal
+            messagebox.showinfo("Success", f"{item} has been removed from your shopping list.")
+        else:
+            messagebox.showwarning("Warning", "Item not found.")
     else:
-        messagebox.showerror("Error", f"{item} is not in your shopping list.")
-
-# Function to clear the entire shopping list
-def clear_list():
-    global shopping_list
-    shopping_list.clear()
-    display_list()  # Clear display
-    save_list()  # Save the cleared list
-    messagebox.showinfo("Success", "All items have been cleared from your shopping list.")
-
-# Function to calculate the total cost of all items
-def calculate_total():
-    total = sum(amount * price for amount, price, _ in shopping_list.values())
-    messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: ${total:.2f}")
-
-# Function to search for an item in the shopping list
-def search_item():
-    global entry_item
-    search_term = entry_item.get().strip().lower()
-    listbox.delete(0, tk.END)
-    found = False
-    for item, details in shopping_list.items():
-        if search_term in item.lower():
-            amount, price, category = details
-            listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price:.2f}, Category: {category})")
-            found = True
-    if not found:
-        messagebox.showinfo("Search Result", "No matching items found.")
-
-# Function to filter items by category
-def filter_items():
-    display_list(combobox_filter.get())
+        messagebox.showwarning("Warning", "Please select an item to remove.")
 
 # Function to clear entry fields
 def clear_entries():
@@ -136,10 +92,52 @@ def clear_entries():
     entry_price.delete(0, tk.END)
     combobox_category.set('')  # Clear category selection
 
+# Function to calculate the total price of all items
+def calculate_total():
+    total_price = sum(amount * price for amount, price, category in shopping_list.values())
+    messagebox.showinfo("Total Price", f"The total price of all items is: ${total_price:.2f}")
+
+# Function to initialize the JSON file and add all items (if not present)
+def initialize_json():
+    if not os.path.exists(filename):  # If file does not exist, create it and add items
+        with open(filename, 'w') as f:
+            json.dump(shopping_list, f, indent=4)
+        print("Shopping list initialized and saved to a new JSON file.")
+    else:
+        load_list()  # If the file exists, load the existing data
+
+# Function to clear the entire shopping list and JSON file
+def clear_list():
+    global shopping_list
+    shopping_list = {}  # Clear the global shopping list
+    save_list()  # Save the empty list to the JSON file
+    display_list()  # Refresh the list view
+    messagebox.showinfo("Success", "The shopping list has been cleared.")
+
+
+# Function to share shopping list on WhatsApp
+def share_whatsapp():
+    if not shopping_list:
+        messagebox.showinfo("Info", "Your shopping list is empty.")
+        return
+    # Generate the shopping list message with line breaks after each item
+    message = "Here's my shopping list:\n"
+    for item, (amount, price, category) in shopping_list.items():
+        message += f"\nItem: {item}\nAmount: {amount}\nPrice: ${price:.2f}\nCategory: {category}\n"
+    
+    # URL-encode the message to ensure it appears correctly in WhatsApp
+    encoded_message = urllib.parse.quote(message)
+    
+    # Open WhatsApp share URL
+    whatsapp_url = f"https://wa.me/?text={encoded_message}"
+    webbrowser.open(whatsapp_url)  # Open the WhatsApp web share link
+
+
+
 # Main function to set up the UI
 def main():
-    global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter
-    load_list()  # Load the shopping list at startup
+    global entry_item, entry_amount, entry_price, tree, combobox_category, combobox_filter
+    initialize_json()  # Initialize JSON and load the list at startup
     root = tk.Tk()
     root.title("Shopping List")
     root.configure(bg="pink")
@@ -186,46 +184,36 @@ def main():
     combobox_filter = ttk.Combobox(frame, values=categories, font=("Arial", 12), state="readonly")
     combobox_filter.grid(row=4, column=1, padx=5, pady=5)
     combobox_filter.set("All")  # Default filter is "All"
-    combobox_filter.bind("<<ComboboxSelected>>", lambda e: filter_items())
+    combobox_filter.bind("<<ComboboxSelected>>", lambda e: display_list(combobox_filter.get()))
 
     # Buttons with styles
     button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#b3ffb3", fg="black", command=add_item)
     button_add.grid(row=5, column=0, padx=5, pady=5, sticky="we")
 
-    button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#ffcc99", fg="black", command=edit_item)
-    button_edit.grid(row=5, column=1, padx=5, pady=5, sticky="we")
+    button_total = tk.Button(frame, text="Calculate Total", font=("Arial", 12), bg="#b3ffb3", fg="black", command=calculate_total)
+    button_total.grid(row=5, column=1, padx=5, pady=5, sticky="we")
+
+    button_clear = tk.Button(frame, text="Clear List", font=("Arial", 12), bg="#ff9999", fg="black", command=clear_list)
+    button_clear.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    # WhatsApp share button
+    whatsapp_icon = tk.Button(frame, text="Share on WhatsApp", font=("Arial", 12), bg="#00cc44", fg="white", command=share_whatsapp)
+    whatsapp_icon.grid(row=7, column=0, columnspan=2, padx=5, pady=5, sticky="we")
+
+    # Display the shopping list
+    columns = ("Item", "Amount", "Price", "Category")
+    tree = ttk.Treeview(frame, columns=columns, show="headings", height=10)
+    tree.heading("Item", text="Item")
+    tree.heading("Amount", text="Amount")
+    tree.heading("Price", text="Price")
+    tree.heading("Category", text="Category")
+    tree.grid(row=8, column=0, columnspan=2, padx=5, pady=5)
 
     button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#ff9999", fg="black", command=remove_item)
-    button_remove.grid(row=6, column=0, padx=5, pady=5, sticky="we")
+    button_remove.grid(row=9, column=0, columnspan=2, padx=5, pady=5, sticky="we")
 
-    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#cceeff", fg="black", command=display_list)
-    button_display.grid(row=6, column=1, padx=5, pady=5, sticky="we")
-
-    button_search = tk.Button(frame, text="Search Item", font=("Arial", 12), bg="#ccffcc", fg="black", command=search_item)
-    button_search.grid(row=7, column=0, padx=5, pady=5, sticky="we")
-
-    button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#ffff99", fg="black", command=calculate_total)
-    button_calculate.grid(row=7, column=1, padx=5, pady=5, sticky="we")
-
-    button_clear = tk.Button(frame, text="Clear List", font=("Arial", 12), bg="#ffccff", fg="black", command=clear_list)
-    button_clear.grid(row=8, column=0, columnspan=2, padx=5, pady=5, sticky="we")
-
-    # Listbox to display the items
-    listbox_frame = tk.Frame(root)
-    listbox_frame.pack(padx=10, pady=10, fill='both', expand=True)
-
-    listbox = tk.Listbox(listbox_frame, font=("Arial", 12), width=50, height=10)
-    listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-    scrollbar = tk.Scrollbar(listbox_frame)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-    listbox.config(yscrollcommand=scrollbar.set)
-    scrollbar.config(command=listbox.yview)
-
-    display_list()  # Initial display of the shopping list
+    display_list()  # Display list at startup
     root.mainloop()
 
-# Run the main function
 if __name__ == "__main__":
     main()
