@@ -22,10 +22,20 @@ def load_list():
             shopping_list = json.load(f)
 
 # Function to save shopping list to a JSON file
+#Added try and except block to catch the exceptions
 def save_list():
-    with open(filename, 'w') as f:
-        json.dump(shopping_list, f)
-
+    try:
+        if not shopping_list:
+               raise ValueError("File is empty.")
+        with open(filename, 'w') as f:
+           json.dump(shopping_list, f)
+           
+    except FileNotFoundError:
+        print("File not found.")
+    except ValueError as ve:
+        print(ve)
+    except Exception as e:
+        print(f"An error occured: {e}")
 # Function to display the shopping list with optional filtering
 def display_list(category_filter="All"):
     listbox.delete(0, tk.END)
