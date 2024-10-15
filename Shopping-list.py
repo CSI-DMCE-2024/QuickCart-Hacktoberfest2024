@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, filedialog
 import json
 import os
+import csv
 
 # Global variables
 shopping_list = {}
@@ -12,7 +13,9 @@ listbox = None
 combobox_category = None
 combobox_filter = None
 filename = "shopping_list.json"
+undo_stack = []
 categories = ["Grocery", "Stationery", "Electronics", "Household", "Clothing", "Other", "All"]
+is_dark_mode = False
 
 # Function to load shopping list from a JSON file
 def load_list():
@@ -52,6 +55,7 @@ def add_item():
                 shopping_list[item][0] += amount  # Update amount
             else:
                 shopping_list[item] = [amount, price, category]  # Store amount, price, and category
+            undo_stack.append(('add', item, amount))  # Add action to undo stack
             clear_entries()
             display_list(combobox_filter.get())  # Refresh the list with the current filter
             save_list()  # Save the list after adding
@@ -73,7 +77,9 @@ def edit_item():
             if new_amount < 0:
                 raise ValueError("Negative values are not allowed.")
             if item in shopping_list:
+                old_amount = shopping_list[item][0]
                 shopping_list[item][0] = new_amount  # Update the item's amount
+                undo_stack.append(('edit', item, old_amount))  # Add action to undo stack
                 clear_entries()
                 display_list(combobox_filter.get())  # Refresh the list with the current filter
                 save_list()  # Save the list after editing
@@ -90,6 +96,7 @@ def remove_item():
     global entry_item
     item = entry_item.get().strip()
     if item in shopping_list:
+        undo_stack.append(('remove', item, shopping_list[item]))  # Add action to undo stack
         del shopping_list[item]
         clear_entries()
         display_list(combobox_filter.get())  # Refresh the list with the current filter
@@ -98,63 +105,61 @@ def remove_item():
     else:
         messagebox.showerror("Error", f"{item} is not in your shopping list.")
 
-# Function to clear the entire shopping list
-def clear_list():
-    global shopping_list
-    shopping_list.clear()
-    display_list()  # Clear display
-    save_list()  # Save the cleared list
-    messagebox.showinfo("Success", "All items have been cleared from your shopping list.")
+# Function to undo the last action
+def undo_action():
+    if undo_stack:
+        action, item, data = undo_stack.pop()
+        if action == 'add':
+            del shopping_list[item]
+        elif action == 'edit':
+            shopping_list[item][0] = data
+        elif action == 'remove':
+            shopping_list[item] = data
+        display_list(combobox_filter.get())
+        save_list()
+        messagebox.showinfo("Undo", "Last action has been undone.")
+    else:
+        messagebox.showerror("Error", "No actions to undo.")
 
-# Function to calculate the total cost of all items
-def calculate_total():
-    total = sum(amount * price for amount, price, _ in shopping_list.values())
-    messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: ${total:.2f}")
+# Function to toggle dark mode
+def toggle_dark_mode():
+    global is_dark_mode
+    is_dark_mode = not is_dark_mode
+    if is_dark_mode:
+        root.configure(bg="#1c1c1c")
+        frame.configure(bg="#1c1c1c")
+        listbox.configure(bg="#333333", fg="white")
+    else:
+        root.configure(bg="#2d3250")
+        frame.configure(bg="#2d3250")
+        listbox.configure(bg="#A0A3B2", fg="black")
 
-# Function to search for an item in the shopping list
-def search_item():
-    global entry_item
-    search_term = entry_item.get().strip().lower()
-    listbox.delete(0, tk.END)
-    found = False
-    for item, details in shopping_list.items():
-        if search_term in item.lower():
-            amount, price, category = details
-            listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price:.2f}, Category: {category})")
-            found = True
-    if not found:
-        messagebox.showinfo("Search Result", "No matching items found.")
-
-# Function to filter items by category
-def filter_items():
-    display_list(combobox_filter.get())
+# Function to export shopping list as CSV
+def export_to_csv():
+    file_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV Files", "*.csv")])
+    if file_path:
+        with open(file_path, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Item", "Amount", "Price", "Category"])
+            for item, details in shopping_list.items():
+                writer.writerow([item] + details)
+        messagebox.showinfo("Export", "Shopping list has been exported as CSV.")
 
 # Function to clear entry fields
 def clear_entries():
     entry_item.delete(0, tk.END)
     entry_amount.delete(0, tk.END)
     entry_price.delete(0, tk.END)
-    combobox_category.set('')  # Clear category selection
+    combobox_category.set('')
 
 # Main function to set up the UI
-import tkinter as tk
-from tkinter import messagebox, ttk
-
 def main():
-    global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter
+    global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter, frame, root
     load_list()  # Load the shopping list at startup
     root = tk.Tk()
     root.title("Shopping List")
     root.configure(bg="#2d3250")
 
-    frame_logo = tk.Frame(root, bg="#2d3250")
-    frame_logo.pack(padx=10, pady=0, fill='x')
-
-    label_logo = tk.Label(frame_logo, text="SHOPPING LIST", font=("Helvetica", 24, "bold"), fg="white", bg="#2d3250")
-    label_logo.grid(row=0, column=0, columnspan=2, pady=10, sticky="nsew")
-    label_logo.pack()
-
-    # Main Input Frame
     frame = tk.Frame(root, bg="#2d3250")
     frame.pack(padx=10, pady=10, fill="both", expand=True)
 
@@ -180,58 +185,48 @@ def main():
     label_category = tk.Label(frame, text="Category:", fg="white", bg="#2d3250", font=("Arial", 12))
     label_category.grid(row=3, column=0, padx=5, pady=5, sticky="e")
 
-    combobox_category = ttk.Combobox(frame, values=categories[:-1], font=("Arial", 12), state="readonly")  # Exclude "All"
-    combobox_category.grid(row=3, column=1, padx=5, pady=5)
+    combobox_category = ttk.Combobox(frame, values=categories[:-1], font=("Arial", 12))
+    combobox_category.grid(row=3, column=1, padx=5, pady=5, sticky="nsew")
 
-    # Filter dropdown
-    label_filter = tk.Label(frame, text="Filter By:", fg="white", bg="#2d3250", font=("Arial", 12))
-    label_filter.grid(row=4, column=0, padx=5, pady=5, sticky="e")
+    # Buttons
+    button_add = tk.Button(frame, text="Add", command=add_item, bg="#14a769", fg="white", font=("Arial", 12, "bold"))
+    button_add.grid(row=4, column=0, padx=5, pady=10)
 
-    combobox_filter = ttk.Combobox(frame, values=categories, font=("Arial", 12), state="readonly")
-    combobox_filter.grid(row=4, column=1, padx=5, pady=5)
-    combobox_filter.set("All")  # Default filter is "All"
-    combobox_filter.bind("<<ComboboxSelected>>", lambda e: filter_items())
+    button_edit = tk.Button(frame, text="Edit", command=edit_item, bg="#f39c12", fg="white", font=("Arial", 12, "bold"))
+    button_edit.grid(row=4, column=1, padx=5, pady=10)
 
-    # Buttons with styles
-    button_add = tk.Button(frame, text="Add Item", font=("Arial", 12), bg="#FF7F50", fg="black", command=add_item)
-    button_add.grid(row=5, column=0, padx=5, pady=5, sticky="we")
+    button_remove = tk.Button(frame, text="Remove", command=remove_item, bg="#e74c3c", fg="white", font=("Arial", 12, "bold"))
+    button_remove.grid(row=5, column=0, padx=5, pady=10)
 
-    button_edit = tk.Button(frame, text="Edit Item", font=("Arial", 12), bg="#FF7F50", fg="black", command=edit_item)
-    button_edit.grid(row=5, column=1, padx=5, pady=5, sticky="we")
+    button_undo = tk.Button(frame, text="Undo", command=undo_action, bg="#3498db", fg="white", font=("Arial", 12, "bold"))
+    button_undo.grid(row=5, column=1, padx=5, pady=10)
 
-    button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#FF7F50", fg="black", command=remove_item)
-    button_remove.grid(row=6, column=0, padx=5, pady=5, sticky="we")
+    button_csv = tk.Button(frame, text="Export CSV", command=export_to_csv, bg="#8e44ad", fg="white", font=("Arial", 12, "bold"))
+    button_csv.grid(row=6, column=0, padx=5, pady=10)
 
-    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#FF7F50", fg="black", command=display_list)
-    button_display.grid(row=6, column=1, padx=5, pady=5, sticky="we")
+    button_dark_mode = tk.Button(frame, text="Toggle Dark Mode", command=toggle_dark_mode, bg="#34495e", fg="white", font=("Arial", 12, "bold"))
+    button_dark_mode.grid(row=6, column=1, padx=5, pady=10)
 
-    button_search = tk.Button(frame, text="Search Item", font=("Arial", 12), bg="#FF7F50", fg="black", command=search_item)
-    button_search.grid(row=7, column=0, padx=5, pady=5,  sticky="we")
-   
-    button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#FF7F50", fg="black", command=calculate_total)
-    button_calculate.grid(row=7, column=1, padx=5, pady=5, sticky="we")
+    # Listbox to display the shopping list
+    listbox = tk.Listbox(frame, font=("Arial", 12), bg="#A0A3B2", fg="black")
+    listbox.grid(row=0, column=2, rowspan=7, padx=10, pady=5, sticky="nsew")
 
-    button_clear = tk.Button(frame, text="Clear List", font=("Arial", 12), bg="#FF7F50", fg="black", command=clear_list)
-    button_clear.grid(row=8, column=0, padx=5, pady=5, columnspan=2, sticky="we")
+    # Category filter dropdown
+    label_filter = tk.Label(frame, text="Filter by Category:", fg="white", bg="#2d3250", font=("Arial", 12))
+    label_filter.grid(row=7, column=0, padx=5, pady=5, sticky="e")
 
-    # Listbox to display the items
-    listbox_frame = tk.Frame(root)
-    listbox_frame.pack(padx=10, pady=10, fill='both', expand=True)
+    combobox_filter = ttk.Combobox(frame, values=categories, font=("Arial", 12))
+    combobox_filter.grid(row=7, column=1, padx=5, pady=5, sticky="nsew")
+    combobox_filter.set("All")
+    combobox_filter.bind("<<ComboboxSelected>>", lambda event: display_list(combobox_filter.get()))
 
-    listbox = tk.Listbox(listbox_frame, font=("Arial", 12), width=50, height=10, bg="#A0A3B2", fg="black")
-    listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    display_list()  # Display the shopping list at startup
 
-    scrollbar = tk.Scrollbar(listbox_frame)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-    listbox.config(yscrollcommand=scrollbar.set)
-    scrollbar.config(command=listbox.yview)
-
-    # Display the list on startup
-    display_list()
+    # Set up grid row and column configurations for responsive resizing
+    frame.grid_columnconfigure(1, weight=1)
+    frame.grid_rowconfigure(0, weight=1)
 
     root.mainloop()
 
-# Run the main function
 if __name__ == "__main__":
     main()
