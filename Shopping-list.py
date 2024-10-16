@@ -27,6 +27,7 @@ def display_list(category_filter="All"):
     for item, details in shopping_list.items():
         amount, price, category, checked = details
         if category_filter == "All" or category_filter == category:
+
             checkmark = "✔" if checked else "✘"
             listbox.insert(tk.END, f"{checkmark} - {item} (Amount: {amount}, Price: ${price:.2f}, Category: {category})")
 
@@ -39,6 +40,20 @@ def toggle_item(event):
             save_list()  # Save changes
             display_list(combobox_filter.get())  # 
 
+
+
+            listbox.insert(tk.END, f"- {item} (Amount: {amount}, Price: ${price:.2f}, Category: {category})")
+    update_button_states()
+
+# Function to update button states based on shopping list
+def update_button_states():
+    is_empty = len(shopping_list) == 0
+    button_edit.config(state=tk.DISABLED if is_empty else tk.NORMAL)
+    button_remove.config(state=tk.DISABLED if is_empty else tk.NORMAL)
+    button_display.config(state=tk.DISABLED if is_empty else tk.NORMAL)
+    button_search.config(state=tk.DISABLED if is_empty else tk.NORMAL)
+    button_calculate.config(state=tk.DISABLED if is_empty else tk.NORMAL)
+    button_clear.config(state=tk.DISABLED if is_empty else tk.NORMAL)
 
 
 
@@ -109,11 +124,10 @@ def clear_entries():
     combobox_category.set('')  # Clear category selection
 
 # Main function to set up the UI
-import tkinter as tk
-from tkinter import messagebox, ttk
-
 def main():
     global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter
+    global button_edit, button_remove, button_display, button_search, button_calculate, button_clear
+
     load_list()  # Load the shopping list at startup
     root = tk.Tk()
     root.title("Shopping List")
@@ -218,12 +232,12 @@ def main():
     button_remove = tk.Button(frame, text="Remove Item", font=("Arial", 12), bg="#FF7F50", fg="black", command=remove_item)
     button_remove.grid(row=6, column=0, padx=5, pady=5, sticky="we")
 
-    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#FF7F50", fg="black", command=display_list)
+    button_display = tk.Button(frame, text="Display List", font=("Arial", 12), bg="#FF7F50", fg="black", command=lambda: display_list(combobox_filter.get()))
     button_display.grid(row=6, column=1, padx=5, pady=5, sticky="we")
 
     button_search = tk.Button(frame, text="Search Item", font=("Arial", 12), bg="#FF7F50", fg="black", command=search_item)
     button_search.grid(row=7, column=0, padx=5, pady=5,  sticky="we")
-   
+
     button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#FF7F50", fg="black", command=calculate_total)
     button_calculate.grid(row=7, column=1, padx=5, pady=5, sticky="we")
 
