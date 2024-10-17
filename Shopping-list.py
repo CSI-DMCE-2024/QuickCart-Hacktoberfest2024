@@ -3,6 +3,10 @@ from tkinter import messagebox, ttk
 import json
 import os
 
+# Get the current directory of the script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+filename = os.path.join(script_dir, "shopping_list.json")
+
 # Global variables
 shopping_list = {}
 entry_item = None
@@ -11,7 +15,6 @@ entry_price = None
 listbox = None
 combobox_category = None
 combobox_filter = None
-filename = "shopping_list.json"
 categories = ["Grocery", "Stationery", "Electronics", "Household", "Clothing", "Other", "All"]
 
 # Function to load shopping list from a JSON file
@@ -20,6 +23,11 @@ def load_list():
     if os.path.exists(filename):
         with open(filename, 'r') as f:
             shopping_list = json.load(f)
+    else:
+        # Create an empty JSON file if it doesn't exist
+        with open(filename, 'w') as f:
+            json.dump({}, f)
+        shopping_list = {}  # Initialize shopping_list to an empty dict
 
 # Function to save shopping list to a JSON file
 def save_list():
