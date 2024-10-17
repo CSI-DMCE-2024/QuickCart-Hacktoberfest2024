@@ -4,9 +4,24 @@ import json
 import os
 
 
+
 shopping_list = {} 
 
 filename = "shopping_list.json"
+
+# Get the current directory of the script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+filename = os.path.join(script_dir, "shopping_list.json")
+
+# Global variables
+shopping_list = {}
+entry_item = None
+entry_amount = None
+entry_price = None
+listbox = None
+combobox_category = None
+combobox_filter = None
+
 categories = ["Grocery", "Stationery", "Electronics", "Household", "Clothing", "Other", "All"]
 
 def load_list():
@@ -14,6 +29,11 @@ def load_list():
     if os.path.exists(filename):
         with open(filename, 'r') as f:
             shopping_list = json.load(f)
+    else:
+        # Create an empty JSON file if it doesn't exist
+        with open(filename, 'w') as f:
+            json.dump({}, f)
+        shopping_list = {}  # Initialize shopping_list to an empty dict
 
 #save list in json file
 def save_list():
