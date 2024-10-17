@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import json
 import os
+from forex_python.converter import CurrencyRates 
 
 # Get the current directory of the script
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -16,6 +17,7 @@ listbox = None
 combobox_category = None
 combobox_filter = None
 categories = ["Grocery", "Stationery", "Electronics", "Household", "Clothing", "Other", "All"]
+
 
 # Function to load shopping list from a JSON file
 def load_list():
@@ -51,6 +53,7 @@ def update_button_states():
     button_display.config(state=tk.DISABLED if is_empty else tk.NORMAL)
     button_search.config(state=tk.DISABLED if is_empty else tk.NORMAL)
     button_calculate.config(state=tk.DISABLED if is_empty else tk.NORMAL)
+    button_calculate_in_INR.config(state=tk.DISABLED if is_empty else tk.NORMAL)
     button_clear.config(state=tk.DISABLED if is_empty else tk.NORMAL)
 
 # Function to add an item to the shopping list
@@ -128,7 +131,17 @@ def clear_list():
 # Function to calculate the total cost of all items
 def calculate_total():
     total = sum(amount * price for amount, price, _ in shopping_list.values())
+    print(total)
     messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: ${total:.2f}")
+
+
+def calculate_total_in_inr():
+    total = sum(amount * price for amount, price, _ in shopping_list.values())
+    # cr=CurrencyRates()
+    total_in_inr=total*80
+
+    messagebox.showinfo("Total Cost", f"Total cost of items in the shopping list: Rs {total_in_inr:.2f}")    
+  
 
 # Function to search for an item in the shopping list
 def search_item():
@@ -158,7 +171,7 @@ def clear_entries():
 # Main function to set up the UI
 def main():
     global entry_item, entry_amount, entry_price, listbox, combobox_category, combobox_filter
-    global button_edit, button_remove, button_display, button_search, button_calculate, button_clear
+    global button_edit, button_remove, button_display, button_search, button_calculate,button_calculate_in_INR, button_clear
 
     load_list()  # Load the shopping list at startup
     root = tk.Tk()
@@ -228,6 +241,9 @@ def main():
 
     button_calculate = tk.Button(frame, text="Calculate Total Cost", font=("Arial", 12), bg="#FF7F50", fg="black", command=calculate_total)
     button_calculate.grid(row=7, column=1, padx=5, pady=5, sticky="we")
+
+    button_calculate_in_INR = tk.Button(frame, text="Calculate Total Cost in INR", font=("Arial", 12), bg="#FF7F50", fg="black", command=calculate_total_in_inr)
+    button_calculate_in_INR.grid(row=9, column=0, padx=5, pady=5, sticky="we")
 
     button_clear = tk.Button(frame, text="Clear List", font=("Arial", 12), bg="#FF7F50", fg="black", command=clear_list)
     button_clear.grid(row=8, column=0, padx=5, pady=5, columnspan=2, sticky="we")
