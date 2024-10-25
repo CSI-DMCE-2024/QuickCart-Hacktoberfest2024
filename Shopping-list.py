@@ -4,35 +4,31 @@ import json
 import os
 
 # Get the current directory of the script
-script_dir = os.path.dirname(os.path.abspath(__file__))
+script_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
 filename = os.path.join(script_dir, "shopping_list.json")
 
 # Global variables
+categories = ["Grocery", "Stationery", "Electronics", "Household", "Clothing", "Other"]
 shopping_list = {}
-entry_item = None
-entry_amount = None
-entry_price = None
-listbox = None
-combobox_category = None
-combobox_filter = None
-categories = ["Grocery", "Stationery", "Electronics", "Household", "Clothing", "Other", "All"]
 
 # Function to load shopping list from a JSON file
 def load_list():
     global shopping_list
-    if os.path.exists(filename):
-        with open(filename, 'r') as f:
-            shopping_list = json.load(f)
-    else:
-        # Create an empty JSON file if it doesn't exist
-        with open(filename, 'w') as f:
-            json.dump({}, f)
-        shopping_list = {}  # Initialize shopping_list to an empty dict
+    try:
+        if os.path.exists(filename):
+            with open(filename, 'r') as f:
+                shopping_list = json.load(f)
+        else:
+            shopping_list = {}
+    except json.JSONDecodeError:
+        shopping_list = {}
+        messagebox.showwarning("Warning", "Shopping list file is corrupted. Starting with an empty list.")
+    save_list()
 
 # Function to save shopping list to a JSON file
 def save_list():
     with open(filename, 'w') as f:
-        json.dump(shopping_list, f)
+        json.dump(shopping_list, f, indent=4)
 
 # Function to display the shopping list with optional filtering
 def display_list(category_filter="All"):
@@ -46,16 +42,12 @@ def display_list(category_filter="All"):
 # Function to update button states based on shopping list
 def update_button_states():
     is_empty = len(shopping_list) == 0
-    button_edit.config(state=tk.DISABLED if is_empty else tk.NORMAL)
-    button_remove.config(state=tk.DISABLED if is_empty else tk.NORMAL)
-    button_display.config(state=tk.DISABLED if is_empty else tk.NORMAL)
-    button_search.config(state=tk.DISABLED if is_empty else tk.NORMAL)
-    button_calculate.config(state=tk.DISABLED if is_empty else tk.NORMAL)
-    button_clear.config(state=tk.DISABLED if is_empty else tk.NORMAL)
+    state = tk.DISABLED if is_empty else tk.NORMAL
+    for button in [button_edit, button_remove, button_display, button_search, button_calculate, button_clear]:
+        button.config(state=state)
 
 # Function to add an item to the shopping list
 def add_item():
-    global entry_item, entry_amount, entry_price, combobox_category
     item = entry_item.get().strip()
     amount = entry_amount.get().strip()
     price = entry_price.get().strip()
@@ -65,8 +57,8 @@ def add_item():
         try:
             amount = int(amount)
             price = float(price)
-            if amount < 0 or price < 0:
-                raise ValueError("Negative values are not allowed.")
+            if amount <= 0 or price < 0:
+                raise ValueError("Amount must be greater than zero and price must be non-negative.")
             if item in shopping_list:
                 shopping_list[item][0] += amount  # Update amount
             else:
@@ -82,15 +74,14 @@ def add_item():
 
 # Function to edit the amount of an item in the shopping list
 def edit_item():
-    global entry_item, entry_amount
     item = entry_item.get().strip()
     new_amount = entry_amount.get().strip()
 
     if item and new_amount:
         try:
             new_amount = int(new_amount)
-            if new_amount < 0:
-                raise ValueError("Negative values are not allowed.")
+            if new_amount <= 0:
+                raise ValueError("Amount must be greater than zero.")
             if item in shopping_list:
                 shopping_list[item][0] = new_amount  # Update the item's amount
                 clear_entries()
@@ -106,7 +97,6 @@ def edit_item():
 
 # Function to remove an item from the shopping list
 def remove_item():
-    global entry_item
     item = entry_item.get().strip()
     if item in shopping_list:
         del shopping_list[item]
@@ -119,7 +109,6 @@ def remove_item():
 
 # Function to clear the entire shopping list
 def clear_list():
-    global shopping_list
     shopping_list.clear()
     display_list()  # Clear display
     save_list()  # Save the cleared list
@@ -132,7 +121,6 @@ def calculate_total():
 
 # Function to search for an item in the shopping list
 def search_item():
-    global entry_item
     search_term = entry_item.get().strip().lower()
     listbox.delete(0, tk.END)
     found = False
@@ -198,14 +186,14 @@ def main():
     label_category = tk.Label(frame, text="Category:", fg="white", bg="#2d3250", font=("Arial", 12))
     label_category.grid(row=3, column=0, padx=5, pady=5, sticky="e")
 
-    combobox_category = ttk.Combobox(frame, values=categories[:-1], font=("Arial", 12), state="readonly")  # Exclude "All"
+    combobox_category = ttk.Combobox(frame, values=categories, font=("Arial", 12), state="readonly")
     combobox_category.grid(row=3, column=1, padx=5, pady=5)
 
     # Filter dropdown
     label_filter = tk.Label(frame, text="Filter By:", fg="white", bg="#2d3250", font=("Arial", 12))
     label_filter.grid(row=4, column=0, padx=5, pady=5, sticky="e")
 
-    combobox_filter = ttk.Combobox(frame, values=categories, font=("Arial", 12), state="readonly")
+    combobox_filter = ttk.Combobox(frame, values=["All"] + categories, font=("Arial", 12), state="readonly")
     combobox_filter.grid(row=4, column=1, padx=5, pady=5)
     combobox_filter.set("All")  # Default filter is "All"
     combobox_filter.bind("<<ComboboxSelected>>", lambda e: filter_items())
