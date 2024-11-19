@@ -26,4 +26,4 @@ A simple **Shopping List** application built with Python's Tkinter library. This
 1. Ensure Python is installed.
 2. Run the script:
    ```bash
-   python shopping_list.py
+   python Shopping-list.py
